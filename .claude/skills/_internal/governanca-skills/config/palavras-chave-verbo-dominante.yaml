@@ -1,0 +1,87 @@
+# Mapeamento de palavras-chave para detectar verbo dominante.
+# Usado por scripts/detectar_verbo_multiplo.py e pelo modo `criacao`.
+# Verbo dominante e a operacao central da skill. Skill com mais de um
+# verbo dominante e candidata a divisao.
+
+verbos_dominantes:
+  redigir:
+    - redigir
+    - escrever
+    - elaborar
+    - minutar
+    - lavrar
+    - produzir peca
+    - draft
+  revisar:
+    - revisar
+    - criticar
+    - auditar peca
+    - apontar incoerencias
+    - apontar contradicoes
+  formatar:
+    - formatar
+    - aplicar template
+    - gerar docx
+    - compor visualmente
+  protocolar:
+    - protocolar
+    - peticionar
+    - submeter
+    - upload
+    - anexar
+  classificar:
+    - classificar
+    - categorizar
+    - rotular
+    - taxonomia
+  extrair:
+    - extrair
+    - levantar
+    - mapear fatos
+    - listar
+    - cronologia
+  organizar:
+    - organizar
+    - ordenar
+    - estruturar pasta
+    - renomear copia
+  calcular:
+    - calcular
+    - mensurar
+    - estimar valor
+    - precificar
+    - apurar
+  validar:
+    - validar
+    - conferir
+    - checar pre-protocolo
+    - certificar completude
+  pesquisar:
+    - pesquisar
+    - buscar julgado
+    - buscar doutrina
+    - levantar precedentes
+  sintetizar:
+    - resumir
+    - sintetizar
+    - condensar
+    - dossiar
+  comunicar:
+    - comunicar
+    - mensagem ao cliente
+    - notificar
+    - explicar para leigo
+  governar:
+    - decidir arquitetura
+    - especificar skill
+    - auditar estrutura
+    - classificar componente
+  monitorar:
+    - monitorar
+    - rastrear publicacao
+    - acompanhar prazo
+
+regras:
+  uma_skill_um_verbo: true
+  dois_verbos_dominantes: candidato_a_divisao
+  verbo_compativel_com_skill_existente: candidato_a_modo_interno

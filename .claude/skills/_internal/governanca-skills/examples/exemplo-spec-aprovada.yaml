@@ -1,0 +1,151 @@
+# Exemplo de SkillCreationSpec aprovada
+# Skill hipotetica: levanta-fatos
+# Status emitido pela governanca-skills modo `criacao`: SPEC_APROVADA
+# Este exemplo calibra a qualidade da saida do modo `criacao`.
+
+id: levanta-fatos
+name: levanta-fatos
+version: "6.5.2"
+layer: nuclear
+family: entrada
+
+dominant_verb: extrair
+problem_solved: >
+  Caso novo recebido como relato e documentos dispersos, sem cronologia
+  verificavel, sem matriz fato-documento e sem lacunas mapeadas. Sem esta
+  skill, peticao-processual comeca antes de o caso estar inteligivel,
+  produzindo argumentacao desancorada e pedidos sem prova.
+
+transformation:
+  input_state: >
+    relato bruto, conjunto de documentos, mensagens trocadas, eventos
+    relatados de forma nao linear.
+  operation: >
+    extrair eventos, classificar como fato natural, humano, juridico,
+    misto ou indefinido, marcar grau de certeza, vincular documentos,
+    gerar cronologia verificavel e matriz fato-documento.
+  output_state: >
+    cronologia.md, matriz-fatos-documentos.md e lista de lacunas
+    factuais, com status fechado e proxima skill permitida.
+
+activation:
+  mode: semantic
+  aliases:
+    - "levante os fatos"
+    - "faca a cronologia"
+    - "levantamento factual"
+    - "matriz fato-documento"
+    - "lacunas factuais"
+  blocked_aliases:
+    - "redija a peca"
+    - "escolha a tese"
+
+input:
+  minimum:
+    - relato_textual_minimo
+    - identificacao_do_caso
+  ideal:
+    - documentos_anexos
+    - mensagens_complementares
+    - linha_do_tempo_preliminar
+    - lista_de_documentos_faltantes_conhecidos
+  accepts_partial: true
+
+output:
+  primary: cronologia-verificavel.md
+  secondary:
+    - matriz-fatos-documentos.md
+    - lacunas-factuais.md
+  formats:
+    - markdown
+  status_enum:
+    - EXECUTADO
+    - EXECUTADO_COM_LACUNAS
+    - BLOQUEADO
+    - REDIRECIONADO
+
+modes:
+  - id: completo
+    description: cronologia mais matriz mais lacunas
+    triggers: ["levante os fatos", "completo"]
+    output: cronologia + matriz + lacunas
+  - id: cronologia
+    description: apenas cronologia
+    triggers: ["faca a cronologia"]
+    output: cronologia.md
+  - id: lacunas
+    description: apenas lacunas
+    triggers: ["o que falta de fato", "lacunas"]
+    output: lacunas-factuais.md
+
+resources:
+  local_assets:
+    - taxonomia-fatos.md
+    - graus-de-certeza.md
+  local_templates:
+    - cronologia-verificavel.md
+    - matriz-fatos-documentos.md
+    - lacunas-factuais.md
+  local_schemas:
+    - evento-fatico.schema.json
+  local_scripts: []
+  local_references: []
+  local_examples:
+    - exemplo-cronologia-bem-feita.md
+    - exemplo-matriz-bem-feita.md
+  local_config:
+    - classificadores-fato.yaml
+  shared_dependencies:
+    - _shared/assets/padrao-redacional.md
+
+file_access:
+  permission: read_only
+  may_create: false
+  may_edit: false
+  may_rename: false
+  may_move: false
+  may_delete: false
+
+manifest:
+  aliases:
+    - "levante os fatos"
+    - "faca a cronologia"
+    - "lacunas"
+  precedence_rule: >
+    rank 9 conforme documento 6 secao 8.3. Cede para mod4 literal,
+    monitor-publicacoes em publicacao recebida e revisao-preprotocolo
+    em minuta final.
+  blocks:
+    - redigir_peca
+    - escolher_tese_final
+    - atualizar_dossie_persistente
+    - formatar_docx
+  allowed_next:
+    - dossie-caso
+    - probat
+    - exploratorio-teses
+    - comunicacao-cliente
+  forbidden_next:
+    - mod4
+    - peticionamento-eletronico
+
+migration:
+  uses_existing_content: false
+  source_items: []
+  destination_map: {}
+
+acceptance_criteria:
+  - SKILL.md operacional com tres modos.
+  - Templates cronologia, matriz e lacunas presentes.
+  - Schema evento-fatico presente.
+  - Pasta config com classificadores-fato.yaml.
+  - Output sempre fechado com status, lacunas, proxima acao e proxima skill.
+  - SKILL.md abaixo de 500 linhas.
+  - Skill nao redige peca, nao escolhe tese, nao formata docx.
+
+errors_to_avoid:
+  - converter relato em tese.
+  - omitir lacunas factuais.
+  - misturar fato com inferencia.
+  - assumir data certa quando ha apenas data aproximada.
+  - prosseguir sem identificacao do caso.

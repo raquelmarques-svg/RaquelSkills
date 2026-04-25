@@ -1,0 +1,241 @@
+# SkillCreationSpec — governanca-skills
+# Conforme schema definido no documento 6, item 5.2.
+# Esta spec é auto-bootstrap: produzida por usuária+Claude atuando como
+# governanca-skills provisória, antes de a própria governanca-skills existir.
+# Após criação física, a skill deve auditar a si mesma (modo auditar-self)
+# e ser revalidada por healthcheck-biblioteca quando este existir.
+
+id: governanca-skills
+name: governanca-skills
+version: "6.5.2"
+layer: internal
+family: governanca
+
+dominant_verb: governar
+problem_solved: >
+  Decidir o que vira skill, modo interno, asset, template, schema, script,
+  reference, example ou config, antes de qualquer criação física de arquivo,
+  e auditar skills existentes contra critérios estruturais mínimos. Sem esta
+  skill, qualquer criação de skill é decidida por impulso, manifest é
+  desorganizado, recursos são duplicados e o skill-creator é acionado fora
+  do contrato V6.5.2.
+
+transformation:
+  input_state: >
+    pedido de criar skill, ou skill existente para auditar, ou material
+    candidato a virar componente da biblioteca, ou skill inchada candidata
+    a divisão, ou skills sobrepostas candidatas a fusão.
+  operation: >
+    classificar, especificar, auditar, dividir ou fundir, conforme o modo
+    interno selecionado, aplicando critérios estruturais da V6.5.2.
+  output_state: >
+    SkillCreationSpec aprovada, ou relatório de auditoria leve, ou ficha
+    de classificação skill-vs-recurso, ou plano de divisão, ou plano de
+    fusão, todos com status fechado e próxima skill permitida.
+
+activation:
+  mode: explicit
+  aliases:
+    - "crie uma skill para"
+    - "transforme isto em skill"
+    - "audite esta skill"
+    - "audite a skill"
+    - "isto vira skill"
+    - "isto deveria virar skill"
+    - "isto vira asset"
+    - "skill ou modo interno"
+    - "divida esta skill"
+    - "esta skill está inchada"
+    - "funda estas skills"
+    - "estas skills se sobrepõem"
+    - "classifique este conteúdo"
+    - "skill-creator"
+    - "criar skill"
+  blocked_aliases:
+    - "redija peça"
+    - "revise mérito"
+    - "gere docx"
+    - "protocole"
+
+input:
+  minimum:
+    - descricao_da_funcao_ou_skill_alvo
+    - tipo_de_pedido (criacao | auditoria | classificacao | divisao | fusao)
+  ideal:
+    - rascunho_textual_da_skill
+    - lista_de_recursos_ja_existentes
+    - exemplos_de_input_e_output_esperados
+    - referencia_a_skills_relacionadas
+    - registros_de_uso_anteriores_quando_houver
+  accepts_partial: true
+
+output:
+  primary: SkillCreationSpec_ou_relatorio_de_governanca
+  secondary:
+    - ficha_classificacao_skill_vs_recurso
+    - plano_divisao_de_skill
+    - plano_fusao_de_skills
+    - alerta_duplicidade
+    - patch_pretendido_para_manifest
+  formats:
+    - yaml
+    - markdown
+    - json
+  status_enum:
+    - SPEC_APROVADA
+    - SPEC_COM_LACUNAS
+    - MIGRAR_RECURSOS
+    - VIRAR_MODO_INTERNO
+    - VIRAR_RECURSO_SHARED
+    - REJEITADA_DUPLICIDADE
+    - AUDITORIA_OK
+    - AUDITORIA_COM_ALERTAS
+    - AUDITORIA_REPROVADA
+    - DIVISAO_RECOMENDADA
+    - FUSAO_RECOMENDADA
+    - SELF_AUDIT_OK
+    - SELF_AUDIT_COM_ALERTAS
+
+modes:
+  - id: criacao
+    description: Recebe pedido de nova skill e produz SkillCreationSpec.
+    triggers: ["crie uma skill", "transforme isto em skill", "criar skill"]
+    output: SkillCreationSpec.yaml + ficha de classificacao previa
+  - id: auditoria
+    description: Auditoria leve de skill existente. Checa apenas presença de campos mínimos.
+    triggers: ["audite a skill", "audite esta skill"]
+    output: relatorio-auditoria-skill.md (nivel leve)
+    profundidade: leve
+  - id: classificacao
+    description: Decide se conteudo vira skill, modo, asset, template, schema, script, reference, example ou config.
+    triggers: ["isto vira skill", "skill ou modo", "classifique"]
+    output: ficha-classificacao.md aplicando regra hierarquica
+    regra_hierarquica: skill_pai_existe -> modo_interno; senao -> skill_autonoma
+  - id: divisao
+    description: Skill com mais de um verbo dominante e procedimentos heterogeneos.
+    triggers: ["divida esta skill", "skill esta inchada"]
+    output: plano-divisao-skill.md
+  - id: fusao
+    description: Duas ou mais skills com verbo dominante coincidente e outputs sobrepostos.
+    triggers: ["funda", "estas skills se sobrepoem"]
+    output: plano-fusao-skills.md
+  - id: auditar-self
+    description: Auto-auditoria leve da propria governanca-skills.
+    triggers: ["audite governanca-skills", "auto-auditoria"]
+    output: relatorio-self-audit.md
+    delegacao_externa: healthcheck-biblioteca para auditoria de integridade da biblioteca
+
+resources:
+  local_assets:
+    - criterios-skill-vs-recurso.md
+    - verbo-dominante.md
+    - riscos-skill-inchada.md
+    - checklist-skill-operacional-leve.md
+    - regra-hierarquica-casos-cinza.md
+  local_templates:
+    - skill-creation-spec.yaml
+    - relatorio-auditoria-skill.md
+    - ficha-classificacao.md
+    - plano-divisao-skill.md
+    - plano-fusao-skills.md
+    - relatorio-self-audit.md
+  local_schemas:
+    - skill-creation-spec.schema.json
+    - skill-audit-leve.schema.json
+    - ficha-classificacao.schema.json
+  local_scripts:
+    - validar_skill_creation_spec.py
+    - detectar_verbo_multiplo.py
+    - auditar_skill_leve.py
+    - classificar_conteudo.py
+    - self_audit.py
+  local_references:
+    - integracao-com-skill-creator-bridge.md
+    - relacao-com-healthcheck-biblioteca.md
+  local_examples:
+    - exemplo-spec-aprovada.yaml
+    - exemplo-spec-com-lacunas.yaml
+    - exemplo-classificacao-asset.md
+    - exemplo-divisao-skill.md
+  local_config:
+    - criterios-auditoria-leve.yaml
+    - palavras-chave-verbo-dominante.yaml
+  shared_dependencies:
+    - _shared/assets/padrao-redacional.md
+    - _manifest/biblioteca.yaml
+    - _manifest/aliases.yaml
+    - _manifest/precedencia.yaml
+    - _manifest/bloqueios.yaml
+
+file_access:
+  permission: read_only
+  may_create: false
+  may_edit: false
+  may_rename: false
+  may_move: false
+  may_delete: false
+  justificativa: >
+    governanca-skills decide e especifica; nao escreve arquivos da biblioteca.
+    Escrita de arquivos pertence a skill-creator-bridge sob autorizacao de
+    file-safety. governanca-skills produz outputs em pastas de saida proprias.
+
+manifest:
+  aliases:
+    - "crie uma skill"
+    - "audite a skill"
+    - "isto vira skill"
+    - "divida esta skill"
+    - "funda estas skills"
+    - "classifique"
+  precedence_rule: >
+    rank alto: ativada antes de skill-creator-bridge sempre que o pedido
+    envolver decisao arquitetural. Cede precedencia para mod4 literal,
+    monitor-publicacoes em publicacao recebida, e revisao-preprotocolo em
+    minuta final.
+  blocks:
+    - escrever_arquivos_da_biblioteca
+    - acionar_skill_creator_diretamente
+    - alterar_manifest_diretamente
+    - executar_migracao_diretamente
+    - revisar_merito_juridico
+    - redigir_peca
+    - gerar_docx
+  allowed_next:
+    - skill-creator-bridge
+    - migration-manager
+    - resource-registry
+    - manifest-manager
+    - file-safety
+    - healthcheck-biblioteca
+  forbidden_next:
+    - mod4
+    - peticao-processual
+    - revisao-juridica
+
+migration:
+  uses_existing_content: false
+  source_items: []
+  destination_map: {}
+
+acceptance_criteria:
+  - SKILL.md operacional com cinco modos internos mais auditar-self.
+  - Cada modo possui template proprio.
+  - Schema de SkillCreationSpec presente e usado pelo modo criacao.
+  - Schema de auditoria leve presente e usado pelo modo auditoria.
+  - Regra hierarquica de casos cinza implementada em asset e em script.
+  - Auditoria leve checa apenas presenca de campos minimos sem julgar substancia.
+  - Auto-auditoria existe e tem fronteira clara com healthcheck-biblioteca.
+  - Skill nao escreve arquivos da biblioteca.
+  - Output sempre fechado com status, lacunas, proxima acao e proxima skill.
+  - SKILL.md abaixo de 500 linhas.
+  - Cada arquivo de pasta serve a procedimento citado em SKILL.md.
+
+errors_to_avoid:
+  - misturar auditoria leve com auditoria substantiva.
+  - permitir que governanca-skills crie arquivos da biblioteca.
+  - permitir que governanca-skills altere _manifest sem chamar manifest-manager.
+  - aceitar SkillCreationSpec sem campos minimos.
+  - decidir caso cinza sem aplicar a regra hierarquica.
+  - duplicar logica de healthcheck-biblioteca dentro de auditar-self.
+  - inflar SKILL.md com teoria que pertence a assets ou references.
+  - aceitar pedido para acionar skill-creator nativo sem passar por skill-creator-bridge.

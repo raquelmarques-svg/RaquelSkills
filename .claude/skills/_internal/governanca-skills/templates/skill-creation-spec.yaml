@@ -1,0 +1,97 @@
+# SkillCreationSpec — TEMPLATE
+# Preencher conforme schema em schemas/skill-creation-spec.schema.json.
+# Validar com scripts/validar_skill_creation_spec.py.
+# Manter campos obrigatorios mesmo quando o valor for "ND" ou lista vazia
+# justificada.
+
+id:                # kebab-case, unico na biblioteca
+name:              # nome legivel
+version: "6.5.2"
+layer:             # nuclear | controlled_pack | governance | internal
+family:            # entrada | construcao | especializada | prova | pesquisa | revisao | saida | gestao | comunicacao | governanca
+
+dominant_verb:     # operacao central, um so
+problem_solved:    # erro recorrente que a skill elimina
+
+transformation:
+  input_state:     # como o input chega
+  operation:       # o que a skill faz
+  output_state:    # como o output sai
+
+activation:
+  mode:            # semantic | explicit | controlled
+  aliases:
+    - ""
+  blocked_aliases:
+    - ""
+
+input:
+  minimum:
+    - ""
+  ideal:
+    - ""
+  accepts_partial: true
+
+output:
+  primary:         # nome e formato da saida principal
+  secondary:
+    - ""
+  formats:
+    - ""
+  status_enum:
+    - ""
+
+modes:
+  - id:
+    description:
+    triggers:
+      - ""
+    output:
+
+resources:
+  local_assets:
+    - ""
+  local_templates:
+    - ""
+  local_schemas:
+    - ""
+  local_scripts:
+    - ""
+  local_references:
+    - ""
+  local_examples:
+    - ""
+  local_config:
+    - ""
+  shared_dependencies:
+    - ""
+
+file_access:
+  permission:      # none | read_only | write_output_only | organize_copy_only | library_admin
+  may_create: false
+  may_edit: false
+  may_rename: false
+  may_move: false
+  may_delete: false   # sempre false
+
+manifest:
+  aliases:
+    - ""
+  precedence_rule:
+  blocks:
+    - ""
+  allowed_next:
+    - ""
+  forbidden_next:
+    - ""
+
+migration:
+  uses_existing_content: false
+  source_items: []
+  destination_map: {}
+
+acceptance_criteria:
+  - ""
+
+errors_to_avoid:
+  - ""

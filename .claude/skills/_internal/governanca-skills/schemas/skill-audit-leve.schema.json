@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-audit-leve.schema.json",
+  "title": "SkillAuditLeve",
+  "description": "Resultado de auditoria leve. Confere apenas presenca de campos minimos.",
+  "type": "object",
+  "required": [
+    "skill_id",
+    "audit_level",
+    "checked_at",
+    "campos_obrigatorios",
+    "pastas_obrigatorias",
+    "status"
+  ],
+  "properties": {
+    "skill_id": { "type": "string" },
+    "audit_level": {
+      "type": "string",
+      "const": "leve",
+      "description": "Auditoria leve apenas. Profunda pertence a healthcheck-biblioteca."
+    },
+    "checked_at": { "type": "string", "format": "date-time" },
+    "campos_obrigatorios": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["presente"],
+          "properties": {
+            "presente": { "type": "boolean" },
+            "observacao": { "type": "string" }
+          }
+        }
+      }
+    },
+    "pastas_obrigatorias": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["presente"],
+          "properties": {
+            "presente": { "type": "boolean" },
+            "vazia": { "type": "boolean" },
+            "observacao": { "type": "string" }
+          }
+        }
+      }
+    },
+    "skill_md_linhas": { "type": "integer" },
+    "alertas": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["AUDITORIA_OK", "AUDITORIA_COM_ALERTAS", "AUDITORIA_REPROVADA"]
+    },
+    "proxima_skill_recomendada": {
+      "type": "string",
+      "description": "healthcheck-biblioteca para profundidade ou outra skill conforme caso."
+    }
+  }
+}

@@ -1,0 +1,35 @@
+# Pastas de trabalho efêmero — fora da biblioteca versionada
+/input/**
+/output/**
+/tmp/**
+/backup/**
+/quarantine/**
+
+# Sistema operacional
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python (caso scripts/ rode local)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# detect-secrets cache temporario
+.secrets.baseline.tmp
+
+# Credenciais (nunca commitar)
+*.pem
+*.key
+*.pfx
+*.p12
+.env
+.env.local

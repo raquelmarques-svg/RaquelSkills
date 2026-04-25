@@ -1,0 +1,59 @@
+# Criterios de auditoria leve aplicados pelo modo `auditoria`.
+# Auditoria leve confere apenas presenca estrutural de campos minimos.
+# Nao avalia substancia, nao julga qualidade redacional, nao verifica
+# correcao juridica. Auditoria substantiva pertence a healthcheck-biblioteca.
+
+auditoria_leve:
+  campos_obrigatorios_no_skill_md:
+    - frontmatter.name
+    - frontmatter.description
+    - frontmatter.version
+    - frontmatter.layer
+    - frontmatter.activation
+    - secao_finalidade
+    - secao_transformacao
+    - secao_gatilhos
+    - secao_bloqueios
+    - secao_entrada_minima
+    - secao_procedimento_operacional_obrigatorio
+    - secao_outputs
+    - secao_limites
+
+  campos_obrigatorios_no_output:
+    - status
+    - output_produzido
+    - lacunas
+    - proxima_acao
+    - proxima_skill_permitida
+    - bloqueios
+
+  pastas_obrigatorias:
+    - assets
+    - templates
+    - schemas
+    - scripts
+    - references
+    - examples
+    - config
+
+  pastas_podem_estar_vazias: true
+
+  limites_estruturais:
+    skill_md_max_linhas: 500
+    skill_md_min_linhas: 30
+
+  status_emitidos:
+    AUDITORIA_OK: todos os campos obrigatorios presentes.
+    AUDITORIA_COM_ALERTAS: campos presentes, mas com pasta vazia onde recurso e citado em SKILL.md.
+    AUDITORIA_REPROVADA: ao menos um campo obrigatorio ausente.
+
+# Criterios fora do escopo desta auditoria leve. Listados aqui apenas
+# para documentar o que NAO se faz neste modo.
+fora_de_escopo:
+  - julgar verbo dominante
+  - julgar adequacao do output ao input
+  - detectar duplicidade entre skills
+  - verificar coerencia com _manifest
+  - validar fluxo de chamadas
+  - avaliar qualidade redacional
+  - avaliar correcao juridica

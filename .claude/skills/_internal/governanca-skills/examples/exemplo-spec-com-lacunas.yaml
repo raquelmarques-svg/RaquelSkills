@@ -1,0 +1,87 @@
+# Exemplo de SkillCreationSpec com lacunas
+# Skill hipotetica: skill-revisao-coisas
+# Status emitido pela governanca-skills modo `criacao`: SPEC_COM_LACUNAS
+# Este exemplo serve de contraste com exemplo-spec-aprovada.yaml.
+# Ele NAO deve ser usado como modelo.
+
+# Diagnostico no fim do arquivo.
+
+id: revisao-coisas         # nome generico, viola "verbo + objeto especifico"
+version: "6.5.2"
+layer: nuclear
+# family ausente => lacuna obrigatoria
+dominant_verb: revisar      # ok, mas conflita com revisao-juridica e revisao-preprotocolo
+problem_solved: "ajudar a revisar"   # vago, sem erro recorrente declarado
+
+transformation:
+  input_state: "qualquer texto"      # input nao delimitado
+  operation: "melhorar"               # operacao nao declarada
+  output_state: "texto melhor"       # output nao verificavel
+
+activation:
+  mode: semantic
+  aliases:
+    - "revise"                        # alias generico, conflita
+    - "melhore"                       # alias generico, conflita
+    - "deixe melhor"                  # alias generico, conflita
+
+input:
+  minimum: []                         # vazio => lacuna obrigatoria
+  ideal: []
+  accepts_partial: true
+
+output:
+  primary: "versao melhorada"        # nome sem formato, sem extensao
+  formats: []                         # vazio => lacuna obrigatoria
+  status_enum: []                     # vazio => lacuna obrigatoria
+
+modes: []                             # nenhum modo declarado
+
+# resources ausente => lacuna nao obrigatoria mas sintomatica
+
+file_access:
+  permission: library_admin           # excessivo para skill que apenas revisa texto
+  may_create: true
+  may_edit: true
+  may_rename: true
+  may_move: true
+  may_delete: true                    # VIOLACAO: schema exige const false
+
+manifest:
+  aliases:
+    - "revise"
+  blocks: []                          # vazio => lacuna obrigatoria
+  allowed_next: []                    # vazio => lacuna obrigatoria
+
+acceptance_criteria: []               # vazio => lacuna obrigatoria
+
+# DIAGNOSTICO da governanca-skills (modo `criacao`)
+# Status: SPEC_COM_LACUNAS
+# Violacoes detectadas:
+# 1. family ausente.
+# 2. dominant_verb generico colidindo com revisao-juridica e revisao-preprotocolo.
+# 3. problem_solved vago, sem erro recorrente nominado.
+# 4. transformation com input, operation e output nao verificaveis.
+# 5. aliases concorrentes com revisao-juridica.
+# 6. input.minimum vazio.
+# 7. output.formats vazio.
+# 8. output.status_enum vazio.
+# 9. modes vazio (skill sem modos e candidata a modo interno).
+# 10. file_access pedido excessivo (library_admin) para revisao textual.
+# 11. file_access.may_delete = true VIOLA o schema (const false).
+# 12. manifest.blocks vazio.
+# 13. manifest.allowed_next vazio.
+# 14. acceptance_criteria vazio.
+#
+# Aplicacao da regra hierarquica:
+# Existe skill-pai compativel: revisao-juridica.
+# Recomendacao: VIRAR_MODO_INTERNO de revisao-juridica, OU absorver
+# parte do escopo em revisao-preprotocolo conforme a operacao real.
+#
+# Proxima acao: usuaria reformula a proposta, esclarecendo:
+#   - qual o objeto especifico da revisao (texto juridico, mensagem,
+#     planilha, codigo);
+#   - qual o output verificavel;
+#   - se ja existe skill compativel.
+# Proxima skill: governanca-skills modo `classificacao`.
+# Bloqueios: skill-creator-bridge nao pode ser acionado com esta spec.

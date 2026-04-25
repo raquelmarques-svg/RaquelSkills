@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ficha-classificacao.schema.json",
+  "title": "FichaClassificacao",
+  "description": "Resultado da classificacao de conteudo entre skill, modo, asset, template, schema, script, reference, example ou config.",
+  "type": "object",
+  "required": [
+    "conteudo_avaliado",
+    "verbo_dominante_detectado",
+    "skill_pai_existente",
+    "destino_recomendado",
+    "justificativa",
+    "status"
+  ],
+  "properties": {
+    "conteudo_avaliado": {
+      "type": "string",
+      "description": "Resumo do que foi submetido a classificacao."
+    },
+    "verbo_dominante_detectado": { "type": "string" },
+    "skill_pai_existente": {
+      "type": "object",
+      "required": ["existe"],
+      "properties": {
+        "existe": { "type": "boolean" },
+        "skill_id": { "type": "string" },
+        "compatibilidade_verbal": {
+          "type": "string",
+          "enum": ["alta", "media", "baixa", "nenhuma"]
+        }
+      }
+    },
+    "destino_recomendado": {
+      "type": "string",
+      "enum": [
+        "skill_autonoma",
+        "modo_interno",
+        "asset",
+        "template",
+        "schema",
+        "script",
+        "reference",
+        "example",
+        "config"
+      ]
+    },
+    "regra_aplicada": {
+      "type": "string",
+      "const": "regra_hierarquica_skill_pai"
+    },
+    "justificativa": { "type": "string" },
+    "caminho_destino_sugerido": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": [
+        "VIRAR_SKILL_AUTONOMA",
+        "VIRAR_MODO_INTERNO",
+        "VIRAR_RECURSO_LOCAL",
+        "VIRAR_RECURSO_SHARED",
+        "REJEITADA_DUPLICIDADE"
+      ]
+    },
+    "proxima_skill": { "type": "string" }
+  }
+}

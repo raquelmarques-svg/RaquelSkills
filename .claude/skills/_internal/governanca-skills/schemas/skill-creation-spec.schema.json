@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-creation-spec.schema.json",
+  "title": "SkillCreationSpec",
+  "description": "Contrato de criacao de skill conforme V6.5.2, documento 6 item 5.2.",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "layer",
+    "family",
+    "dominant_verb",
+    "transformation",
+    "activation",
+    "input",
+    "output",
+    "file_access",
+    "manifest",
+    "acceptance_criteria"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Identificador kebab-case unico na biblioteca."
+    },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "layer": {
+      "type": "string",
+      "enum": ["nuclear", "controlled_pack", "governance", "internal"]
+    },
+    "family": { "type": "string" },
+    "dominant_verb": {
+      "type": "string",
+      "description": "Operacao central da skill. Skill so deve ter um."
+    },
+    "problem_solved": { "type": "string" },
+    "transformation": {
+      "type": "object",
+      "required": ["input_state", "operation", "output_state"],
+      "properties": {
+        "input_state": { "type": "string" },
+        "operation": { "type": "string" },
+        "output_state": { "type": "string" }
+      }
+    },
+    "activation": {
+      "type": "object",
+      "required": ["mode", "aliases"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["semantic", "explicit", "controlled"]
+        },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "blocked_aliases": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "required": ["minimum", "ideal"],
+      "properties": {
+        "minimum": { "type": "array", "items": { "type": "string" } },
+        "ideal": { "type": "array", "items": { "type": "string" } },
+        "accepts_partial": { "type": "boolean" }
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["primary", "formats", "status_enum"],
+      "properties": {
+        "primary": { "type": "string" },
+        "secondary": { "type": "array", "items": { "type": "string" } },
+        "formats": { "type": "array", "items": { "type": "string" } },
+        "status_enum": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "modes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "triggers": { "type": "array", "items": { "type": "string" } },
+          "output": { "type": "string" }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "local_assets": { "type": "array", "items": { "type": "string" } },
+        "local_templates": { "type": "array", "items": { "type": "string" } },
+        "local_schemas": { "type": "array", "items": { "type": "string" } },
+        "local_scripts": { "type": "array", "items": { "type": "string" } },
+        "local_references": { "type": "array", "items": { "type": "string" } },
+        "local_examples": { "type": "array", "items": { "type": "string" } },
+        "local_config": { "type": "array", "items": { "type": "string" } },
+        "shared_dependencies": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "file_access": {
+      "type": "object",
+      "required": ["permission", "may_delete"],
+      "properties": {
+        "permission": {
+          "type": "string",
+          "enum": [
+            "none",
+            "read_only",
+            "write_output_only",
+            "organize_copy_only",
+            "library_admin"
+          ]
+        },
+        "may_create": { "type": "boolean" },
+        "may_edit": { "type": "boolean" },
+        "may_rename": { "type": "boolean" },
+        "may_move": { "type": "boolean" },
+        "may_delete": { "type": "boolean", "const": false }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "required": ["aliases", "blocks", "allowed_next"],
+      "properties": {
+        "aliases": { "type": "array", "items": { "type": "string" } },
+        "precedence_rule": { "type": "string" },
+        "blocks": { "type": "array", "items": { "type": "string" } },
+        "allowed_next": { "type": "array", "items": { "type": "string" } },
+        "forbidden_next": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "properties": {
+        "uses_existing_content": { "type": "boolean" },
+        "source_items": { "type": "array", "items": { "type": "string" } },
+        "destination_map": { "type": "object" }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "errors_to_avoid": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
