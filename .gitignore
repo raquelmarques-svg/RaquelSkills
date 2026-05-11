@@ -1,35 +1,28 @@
-# Pastas de trabalho efêmero — fora da biblioteca versionada
-/input/**
-/output/**
-/tmp/**
-/backup/**
-/quarantine/**
+﻿# Dados de cliente — JAMAIS subir para remoto
+casos/
+clientes/
+arquivos-cliente/
+_dados-pessoais/
 
-# Sistema operacional
-Thumbs.db
-desktop.ini
-.DS_Store
+# Backups locais
+_backups/
 
-# Editores
-.vscode/
-.idea/
+# Arquivos temporários
+*.tmp
 *.swp
 *~
+.DS_Store
+Thumbs.db
 
-# Python (caso scripts/ rode local)
+# Arquivos compilados/cache
 __pycache__/
 *.pyc
-*.pyo
 .venv/
-venv/
+node_modules/
 
-# detect-secrets cache temporario
-.secrets.baseline.tmp
+# Logs
+*.log
 
-# Credenciais (nunca commitar)
-*.pem
-*.key
-*.pfx
-*.p12
-.env
-.env.local
+# Outputs gerados
+outputs/
+_APAGAR/
