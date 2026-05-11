@@ -1,0 +1,59 @@
+# Template para nova skill — preencha os campos abaixo
+
+skill_name: "[nome-da-skill em kebab-case]"
+description: "[Uma linha: o que a skill faz em linguagem simples]"
+
+# Metadados
+version: "1.0.0"
+category: "capability"  # ou: preference, utility, meta
+núcleo: "N2"            # N1=revisão, N2=análise, N3=processamento, N4=financeiro, N5=orquestração, N6=perícia
+frente: "transversal"   # ou: F1=previdenciário, F2=processual, F3=contratos, F4=família, F5=bancada, F6=artemis
+camada: "C0"            # C0-C9 conforme sequência de dependências
+projeto: "Proj02"       # Proj02, Proj04, Proj05, etc
+author: "Raquel de Almeida Marques"
+
+# Frontmatter validado (use exatamente como acima)
+verified_in: "2026-05-11"  # Última auditoria
+next_audit: "2026-06-11"   # Próxima auditoria (30 dias depois)
+
+# Estrutura esperada
+structure:
+  root: "C:\\RaquelSkills\\skills\\[skill-name]\\"
+  files:
+    - "SKILL.md"           # Frontmatter + instruções (obrigatório)
+    - "README.md"          # Documentação (obrigatório)
+  folders:
+    - "examples/"          # Casos de teste
+    - "templates/"         # Templates reutilizáveis
+    - "schemas/"           # JSON schemas para validação
+
+# Restrições de tamanho
+constraints:
+  max_lines_skill_md: 500  # SKILL.md ≤ 500 linhas (core logic)
+  max_duplication: 20      # Linhas duplicadas com biblioteca ≤ 20 (senão REFACTOR necessário)
+
+# Dependências
+dependencies:
+  - "parser_skill_md.py"   # Se usar SKILL.md
+  - "log_auditoria.py"     # Se registrar em log
+  - "undo_operacao.py"     # Se permitir desfazer
+
+# Exemplos de entrada/saída (mínimo 1)
+examples:
+  - name: "Exemplo 1"
+    input: "[descrição do input]"
+    expected_output: "[descrição do output esperado]"
+    notes: "[notas adicionais]"
+
+# Regras aplicáveis
+rules_applicable:
+  - "R1"   # Exportação — perguntar antes de gerar
+  - "R2"   # Preservação — nunca apagar
+  - "R3"   # Backup — backup antes de modificar
+  - "R6"   # Adaptação — não negar sem propor ajuste
+  - "R10"  # Discordância útil — apontar inconsistências
+  - "R11"  # Economia de ação — planejar antes de fazer
+
+# Status
+status: "criada"  # criada, planejada, ativa, deprecada
+notes: "[Qualquer nota sobre implementação, gotchas, limitações]"

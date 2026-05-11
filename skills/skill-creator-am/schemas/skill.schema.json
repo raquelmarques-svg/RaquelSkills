@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skill Schema — Almeida Marques V4",
+  "description": "Validação de metadados de skill (frontmatter de SKILL.md)",
+  "type": "object",
+  "required": [
+    "title",
+    "description",
+    "version",
+    "category",
+    "núcleo",
+    "frente",
+    "camada",
+    "projeto",
+    "author",
+    "verified_in"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 50,
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Nome da skill em kebab-case"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1024,
+      "description": "Descrição em uma linha (≤1024 chars)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Versão em formato semântico (X.Y.Z)"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["capability", "preference", "utility", "meta"],
+      "description": "Tipo de skill"
+    },
+    "núcleo": {
+      "type": "string",
+      "enum": ["N1", "N2", "N3", "N4", "N5", "N6"],
+      "description": "N1=revisão, N2=análise, N3=processamento, N4=financeiro, N5=orquestração, N6=perícia"
+    },
+    "frente": {
+      "type": "string",
+      "enum": ["transversal", "F1", "F2", "F3", "F4", "F5", "F6"],
+      "description": "Área de atuação"
+    },
+    "camada": {
+      "type": "string",
+      "pattern": "^C[0-9]$",
+      "description": "Camada de dependência (C0-C9)"
+    },
+    "projeto": {
+      "type": "string",
+      "enum": ["Proj02", "Proj04", "Proj05"],
+      "description": "Projeto que contém a skill"
+    },
+    "author": {
+      "type": "string",
+      "description": "Autor/responsável"
+    },
+    "verified_in": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da última auditoria (YYYY-MM-DD)"
+    }
+  },
+  "additionalProperties": false
+}
