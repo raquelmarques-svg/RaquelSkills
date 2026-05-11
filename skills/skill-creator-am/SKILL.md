@@ -9,6 +9,8 @@ camada: C0
 projeto: Proj02
 author: Raquel de Almeida Marques
 verified_in: 2026-05-11
+git_repo: C:\RaquelSkills
+git_auto_commit: true
 ---
 
 # skill-creator-am
@@ -32,6 +34,15 @@ Cria skill do zero respeitando arquitetura V4.
 
 **Saída**: pasta `C:\RaquelSkills\skills\[skill-name]\` pronta para conteúdo.
 
+**[GIT]** Se `git_auto_commit: true`:
+```
+cd {git_repo}
+git add skills/{skill-name}/SKILL.md
+git commit -m "feat({skill-name}): criação inicial v{version}"
+Reportar hash do commit na resposta
+Se git falhar, reportar erro mas NÃO reverter a edição
+```
+
 ---
 
 ### 2. EDIT — Editar skill existente
@@ -49,6 +60,15 @@ Modifica skill sem quebrar dependências.
 
 **Saída**: skill modificada com backup preservado em `_backups/`.
 
+**[GIT]** Se `git_auto_commit: true`:
+```
+cd {git_repo}
+git add skills/{skill-name}/SKILL.md
+git commit -m "fix({skill-name}): {resumo-mudança} v{version}"
+Reportar hash do commit na resposta
+Se git falhar, reportar erro mas NÃO reverter a edição
+```
+
 ---
 
 ### 3. REFACTOR — Reestruturar skill
@@ -64,6 +84,15 @@ Melhora qualidade sem alterar comportamento externo.
 - Executa refactor com backup
 
 **Saída**: skill otimizada ou dividida em múltiplas skills.
+
+**[GIT]** Se `git_auto_commit: true`:
+```
+cd {git_repo}
+git add skills/{skill-name}/SKILL.md
+git commit -m "refactor({skill-name}): {resumo-refactor} v{version}"
+Reportar hash do commit na resposta
+Se git falhar, reportar erro mas NÃO reverter a edição
+```
 
 ---
 
@@ -81,6 +110,31 @@ Executa auditoria R9 em todas as skills.
 - Gera relatório consolidado
 
 **Saída**: `governanca/audit-YYYYMM.md` com status de todas as skills.
+
+---
+
+### 5. UNDO — Desfazer última operação
+
+Reverte última modificação de uma skill para backup anterior.
+
+**Entrada**: skill com última operação a reverter.
+
+**Processo**:
+- Identifica backup anterior em `_backups/`
+- Restaura SKILL.md do backup
+- Registra reversão em `_log-auditoria.md`
+- Atualiza versão em `_inventario.md`
+
+**Saída**: skill restaurada para estado anterior.
+
+**[GIT]** Se `git_auto_commit: true`:
+```
+cd {git_repo}
+git add skills/{skill-name}/SKILL.md
+git commit -m "revert({skill-name}): restaura v{version-anterior}"
+Reportar hash do commit na resposta
+Se git falhar, reportar erro mas NÃO reverter a edição
+```
 
 ---
 
@@ -148,7 +202,7 @@ Relatório: governanca/audit-202605.md
 ## Status
 
 **Instalado**: ✅ 2026-05-11  
-**Versão**: 1.0.0  
+**Versão**: 1.1.0  
 **Última auditoria**: 2026-05-11  
 **Próxima auditoria**: 2026-06-11
 
@@ -156,7 +210,10 @@ Relatório: governanca/audit-202605.md
 
 ## Notas de implementação
 
-- Modes CREATE, EDIT, REFACTOR são semi-automáticos (feedback humano necessário)
+- Modes CREATE, EDIT, REFACTOR, UNDO são semi-automáticos (feedback humano necessário)
 - Mode CULTIVATE é totalmente automático
 - Todos os modos registram em log de auditoria (R9)
 - Backup automático em todas operações (R3)
+- Integração Git: se `git_auto_commit: true`, cada operação que modifica skill é registrada no repositório canônico (`git_repo`)
+- Git é opcional (desativável sem editar código) e não substitui backup ou auditoria
+- Se Git falhar, edição é preservada (Git é apenas log, não é crítico)
