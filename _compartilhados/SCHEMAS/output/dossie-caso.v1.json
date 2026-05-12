@@ -1,175 +1,364 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raquelskills/schemas/output/dossie-caso.v1.json",
-  "produced_by": [
-    "dossie-caso"
-  ],
-  "consumed_by": [
-    "levanta-fatos",
-    "replica",
-    "pericia-acidentaria",
-    "pericia-previdenciaria",
-    "artigo-juridico"
-  ],
+  "produced_by": ["dossie-caso"],
+  "consumed_by": ["levanta-fatos", "replica", "pericia-acidentaria", "pericia-previdenciaria", "artigo-juridico"],
   "title": "dossie-caso",
-  "version": "1.0.0",
-  "description": "Contrato de output da skill dossie-caso. Define o dossie estruturado de um caso que alimenta skills de producao de pecas (replica, pericia-acidentaria, artigo-juridico) e a skill levanta-fatos.",
+  "version": "1.1.0",
+  "description": "Contrato de output da skill dossie-caso. Registra fatos em 5 dimensoes (naturais, humanos, clinicos, previdenciarios, juridicos), qualificacao completa das partes, linha do tempo, questoes de fato e de direito, provas com interpretacao e proxima acao recomendada.",
   "type": "object",
-  "required": [
-    "identificacao",
-    "resumo_fatos",
-    "teses_principais",
-    "status_atual"
-  ],
+  "required": ["identificacao", "partes", "fatos", "questoes", "provas", "status_atual"],
   "additionalProperties": false,
   "properties": {
+
     "identificacao": {
       "type": "object",
-      "required": [
-        "nome_cliente",
-        "processo_numero"
-      ],
+      "required": ["nome_cliente", "processo_numero"],
       "properties": {
-        "nome_cliente": {
-          "type": "string",
-          "example": "Maria da Silva"
-        },
-        "cpf": {
-          "type": "string",
-          "pattern": "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$"
-        },
-        "processo_numero": {
-          "type": "string",
-          "example": "0001234-55.2025.8.26.0100"
-        },
+        "nome_cliente": { "type": "string", "example": "Maria da Silva" },
+        "cpf": { "type": "string", "pattern": "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$" },
+        "processo_numero": { "type": "string", "example": "0001234-55.2025.8.26.0100" },
         "tipo_acao": {
           "type": "string",
-          "enum": [
-            "acidentaria",
-            "previdenciaria",
-            "trabalhista",
-            "bpc-loas",
-            "nt3",
-            "outros"
-          ],
+          "enum": ["acidentaria", "previdenciaria", "trabalhista", "bpc-loas", "nt3", "outros"],
           "example": "acidentaria"
         },
         "fase_atual": {
           "type": "string",
-          "enum": [
-            "pre-distribuicao",
-            "instrucao",
-            "pericia-designada",
-            "pos-laudo",
-            "sentenca",
-            "recurso",
-            "execucao",
-            "encerrado"
-          ],
+          "enum": ["pre-distribuicao", "instrucao", "pericia-designada", "pos-laudo", "sentenca", "recurso", "execucao", "encerrado"],
           "example": "pos-laudo"
         }
       }
     },
-    "resumo_fatos": {
-      "type": "string",
-      "description": "Narrativa factual sintetica: quem e o cliente, qual o dano, qual o historico laboral relevante, o que o INSS/reu fez. Max 500 palavras.",
-      "minLength": 50,
-      "maxLength": 3000
-    },
-    "cronologia": {
-      "type": "array",
-      "description": "Linha do tempo de eventos relevantes, ordenada por data crescente",
-      "items": {
-        "type": "object",
-        "required": [
-          "data",
-          "evento"
-        ],
-        "properties": {
-          "data": {
-            "type": "string",
-            "format": "date"
-          },
-          "evento": {
-            "type": "string",
-            "example": "Acidente de trabalho com fratura L3-L4"
-          },
-          "documento_referencia": {
-            "type": "string",
-            "description": "Nome ou tipo do documento que registra o evento",
-            "example": "CAT emitida pelo empregador"
+
+    "partes": {
+      "type": "object",
+      "required": ["autor"],
+      "properties": {
+        "autor": {
+          "type": "object",
+          "required": ["nome"],
+          "description": "Qualificacao completa do autor para cabecalho de petica e para acionamento",
+          "properties": {
+            "nome": { "type": "string", "example": "Maria da Silva" },
+            "cpf": { "type": "string", "pattern": "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$", "example": "123.456.789-00" },
+            "rg": { "type": "string", "example": "12.345.678-9 SSP/SP" },
+            "data_nascimento": { "type": "string", "format": "date", "example": "1975-04-12" },
+            "estado_civil": {
+              "type": "string",
+              "enum": ["solteiro", "casado", "uniao_estavel", "separado", "divorciado", "viuvo"],
+              "example": "casado"
+            },
+            "profissao": { "type": "string", "example": "Operaria metalurgica" },
+            "nit_pis": { "type": "string", "example": "12345678901" },
+            "email": { "type": "string", "format": "email", "example": "maria@email.com" },
+            "telefone_principal": { "type": "string", "example": "(11) 99999-8888" },
+            "telefone_secundario": { "type": ["string", "null"], "example": "(11) 3333-4444" },
+            "whatsapp": { "type": ["string", "null"], "example": "(11) 99999-8888" },
+            "endereco": {
+              "type": "object",
+              "properties": {
+                "logradouro": { "type": "string", "example": "Rua das Flores, 100, Apto 22" },
+                "bairro": { "type": "string", "example": "Jardim Paulista" },
+                "cidade": { "type": "string", "example": "Sao Paulo" },
+                "uf": { "type": "string", "example": "SP" },
+                "cep": { "type": "string", "pattern": "^\\d{5}-\\d{3}$", "example": "01310-100" },
+                "ponto_referencia": {
+                  "type": "string",
+                  "description": "Referencia geografica para localizacao do cliente em caso de necessidade de contato presencial",
+                  "example": "Proximo ao Mercado Sao Joao, portao verde"
+                }
+              }
+            }
+          }
+        },
+        "reu": {
+          "type": "object",
+          "required": ["nome"],
+          "properties": {
+            "nome": { "type": "string", "example": "Instituto Nacional do Seguro Social - INSS" },
+            "cnpj": { "type": ["string", "null"], "example": "29.979.036/0001-40" },
+            "qualificacao": { "type": "string" }
+          }
+        },
+        "terceiros": {
+          "type": "array",
+          "description": "Empregador, assistente tecnico, testemunhas relevantes, representante legal",
+          "items": {
+            "type": "object",
+            "required": ["nome", "papel"],
+            "properties": {
+              "nome": { "type": "string" },
+              "papel": {
+                "type": "string",
+                "enum": ["empregador", "assistente_tecnico", "testemunha", "representante_legal", "curador", "outros"]
+              },
+              "contato": { "type": "string" },
+              "relevancia": { "type": "string" }
+            }
           }
         }
       }
     },
-    "teses_principais": {
-      "type": "array",
-      "description": "Teses juridicas que sustentam a acao. Cada item: norma + fato + conclusao em uma frase.",
-      "items": {
-        "type": "string"
-      },
-      "minItems": 1,
-      "example": [
-        "NTEP nao afastado: CNAE 2910701 x CID M54.5 constam da Lista A e laudo pericial e Tipo B, insuficiente para afastar a presuncao (art. 21-A Lei 8.213/91)",
-        "Vicio de especie: NB concedido como B31 quando caberia B91, gerando diferenca de RMI desde a DIB"
-      ]
+
+    "fatos": {
+      "type": "object",
+      "description": "Taxonomia de fatos em 5 dimensoes. Cada dimensao e independente e pode ser preenchida parcialmente.",
+      "properties": {
+        "naturais": {
+          "type": "array",
+          "description": "Fatos naturais: dados biograficos, origem, composicao familiar, situacao socioeconomica",
+          "items": {
+            "type": "object",
+            "required": ["descricao"],
+            "properties": {
+              "descricao": { "type": "string", "example": "Cliente nascida em Recife/PE, migrou para Sao Paulo em 1998" },
+              "data": { "type": ["string", "null"], "format": "date" },
+              "fonte": { "type": "string", "example": "Declaracao do cliente" },
+              "controvertido": { "type": "boolean", "default": false }
+            }
+          }
+        },
+        "humanos": {
+          "type": "array",
+          "description": "Fatos humanos: condicoes de trabalho, historico laboral, situacao social, rede de suporte, impacto da doenca na vida cotidiana",
+          "items": {
+            "type": "object",
+            "required": ["descricao"],
+            "properties": {
+              "descricao": { "type": "string", "example": "Trabalhava em linha de montagem com repeticao de movimentos por 8h diarias" },
+              "periodo": { "type": "string", "example": "2010-2024" },
+              "fonte": { "type": "string" },
+              "controvertido": { "type": "boolean", "default": false }
+            }
+          }
+        },
+        "clinicos": {
+          "type": "array",
+          "description": "Fatos clinicos: diagnosticos, tratamentos, exames, evolucao da doenca, limitacoes funcionais, internacoes",
+          "items": {
+            "type": "object",
+            "required": ["descricao", "cid"],
+            "properties": {
+              "descricao": { "type": "string", "example": "Hérnia discal L4-L5 com compressao de raiz nervosa confirmada por RM" },
+              "cid": { "type": "string", "pattern": "^[A-Z]\\d{2}(\\.\\d)?$", "example": "M51.1" },
+              "data_diagnostico": { "type": ["string", "null"], "format": "date" },
+              "medico_responsavel": { "type": "string" },
+              "limitacoes": {
+                "type": "array",
+                "items": { "type": "string" },
+                "example": ["nao consegue permanecer em pe por mais de 20 minutos", "dificuldade para subir escadas"]
+              },
+              "tratamento_atual": { "type": "string" },
+              "fonte": { "type": "string", "example": "Laudo Dr. Joao Alves de 2024-03-10" },
+              "controvertido": { "type": "boolean", "default": false }
+            }
+          }
+        },
+        "previdenciarios": {
+          "type": "array",
+          "description": "Fatos previdenciarios: historico de beneficios, CNIS, carencia, qualidade de segurado, periodo de graca, DID/DII/DIB/DCB",
+          "items": {
+            "type": "object",
+            "required": ["descricao"],
+            "properties": {
+              "descricao": { "type": "string", "example": "INSS concedeu B31 (auxilio-doenca comum) em vez de B91 (acidentario)" },
+              "nb": { "type": "string", "example": "123.456.789-0" },
+              "especie": { "type": "string", "example": "B31" },
+              "dib": { "type": ["string", "null"], "format": "date" },
+              "dcb": { "type": ["string", "null"], "format": "date" },
+              "fonte": { "type": "string" },
+              "controvertido": { "type": "boolean", "default": false }
+            }
+          }
+        },
+        "juridicos": {
+          "type": "array",
+          "description": "Fatos juridicos: historico processual, decisoes anteriores, prazos, audiencias, recursos, execucao",
+          "items": {
+            "type": "object",
+            "required": ["descricao", "data"],
+            "properties": {
+              "descricao": { "type": "string", "example": "Contestacao do INSS protocolada em 2025-06-10, sem impugnar o NTEP" },
+              "data": { "type": "string", "format": "date" },
+              "tipo": {
+                "type": "string",
+                "enum": ["distribuicao", "citacao", "contestacao", "pericia", "laudo", "sentenca", "recurso", "audiencia", "prazo", "outros"]
+              },
+              "documento_referencia": { "type": "string" },
+              "prazo_remanescente_dias": { "type": ["integer", "null"] },
+              "controvertido": { "type": "boolean", "default": false }
+            }
+          }
+        }
+      }
     },
-    "provas_disponiveis": {
-      "type": "array",
-      "description": "Provas ja juntadas ou em poder do escritorio, relevantes para as teses",
-      "items": {
-        "type": "string"
-      },
-      "example": [
-        "CAT com CID M54.5",
-        "CNIS confirmando vinculo no CNAE 2910701",
-        "Laudo do neurologista Dr. Jose Alves"
-      ]
+
+    "questoes": {
+      "type": "object",
+      "description": "Separacao entre o que e controversia de fato (o que aconteceu?) e controversia de direito (qual norma se aplica?)",
+      "properties": {
+        "de_fato": {
+          "type": "array",
+          "description": "Questoes factuais controvertidas: o INSS nega, o cliente afirma, ou existe ambiguidade probatoria. Cada item: o que esta em disputa, qual a posicao do autor, qual a posicao do reu, qual prova resolve.",
+          "items": {
+            "type": "object",
+            "required": ["questao"],
+            "properties": {
+              "questao": { "type": "string", "example": "O trabalho contribuiu para o desencadeamento da hernia discal?" },
+              "posicao_autor": { "type": "string", "example": "Sim — atividade repetitiva por 14 anos como causa concorrente" },
+              "posicao_reu": { "type": "string", "example": "Nao — doenca degenerativa sem relacao com o trabalho" },
+              "prova_que_resolve": { "type": "string", "example": "Laudo pericial com anamnese ocupacional e NTEP verificado" },
+              "status": {
+                "type": "string",
+                "enum": ["aberta", "resolvida_favor_autor", "resolvida_favor_reu", "pendente_prova"],
+                "example": "aberta"
+              }
+            }
+          }
+        },
+        "de_direito": {
+          "type": "array",
+          "description": "Questoes normativas: qual norma incide, qual e sua interpretacao correta, qual e a consequencia juridica. Cada item: tese juridica no formato norma-fato-conclusao.",
+          "items": {
+            "type": "object",
+            "required": ["tese"],
+            "properties": {
+              "tese": {
+                "type": "string",
+                "example": "Norma: art. 21-A Lei 8.213/91 — Fato: CNAE 2910701 x CID M51.1 constam da Lista A do Decreto 3.048 — Conclusao: presuncao de nexo opera de pleno direito, ônus do INSS afastar"
+              },
+              "norma_principal": { "type": "string", "example": "art. 21-A Lei 8.213/1991" },
+              "jurisprudencia_de_suporte": {
+                "type": "array",
+                "items": { "type": "string" },
+                "example": ["STJ Tema 503", "STJ REsp 1.306.113/SC"]
+              },
+              "objecao_prevista": { "type": "string" },
+              "resposta_objecao": { "type": "string" }
+            }
+          }
+        }
+      }
     },
+
+    "provas": {
+      "type": "array",
+      "description": "Inventario de provas com interpretacao estrategica de cada uma",
+      "items": {
+        "type": "object",
+        "required": ["documento", "tipo", "conteudo_relevante"],
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "Nome ou referencia do documento",
+            "example": "CAT n. 123456 emitida pela Metalurgica ABC Ltda"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["CAT", "CNIS", "CTPS", "PPP", "LTCAT", "PCMSO", "laudo_medico", "laudo_pericial_INSS", "exame_imagem", "prontuario", "receituario", "atestado", "declaracao_empregador", "processo_administrativo", "sentenca_anterior", "outros"],
+            "example": "CAT"
+          },
+          "data_emissao": { "type": ["string", "null"], "format": "date" },
+          "conteudo_relevante": {
+            "type": "string",
+            "description": "O que este documento prova objetivamente — sem interpretacao ainda",
+            "example": "Registra acidente de trabalho com CID M51.1 em 2023-08-15, emitida pelo empregador no prazo legal"
+          },
+          "interpretacao": {
+            "type": "string",
+            "description": "O que este documento significa estrategicamente para o caso",
+            "example": "Confirma nexo acidentario pela propria empresa, impedindo o INSS de alegar doenca exclusivamente pessoal"
+          },
+          "forca_probatoria": {
+            "type": "string",
+            "enum": ["forte", "media", "fraca", "neutra", "contraria"],
+            "description": "Avaliacao da forca desta prova para as teses do autor",
+            "example": "forte"
+          },
+          "juntada_no_processo": { "type": "boolean", "example": true },
+          "observacao": { "type": "string" }
+        }
+      }
+    },
+
+    "cronologia": {
+      "type": "array",
+      "description": "Linha do tempo unificada de todos os fatos e atos processuais, ordenada por data crescente",
+      "items": {
+        "type": "object",
+        "required": ["data", "evento", "dimensao"],
+        "properties": {
+          "data": { "type": "string", "format": "date" },
+          "evento": { "type": "string", "example": "Acidente de trabalho com hernia discal confirmada por RM" },
+          "dimensao": {
+            "type": "string",
+            "enum": ["natural", "humano", "clinico", "previdenciario", "juridico"],
+            "description": "A qual dimensao de fatos este evento pertence",
+            "example": "clinico"
+          },
+          "documento_referencia": { "type": "string" },
+          "relevancia": {
+            "type": "string",
+            "enum": ["alta", "media", "baixa"],
+            "example": "alta"
+          }
+        }
+      }
+    },
+
     "lacunas": {
       "type": "array",
-      "description": "Provas ausentes que enfraquecem as teses ou que devem ser requeridas",
+      "description": "Provas ausentes ou questoes sem resposta que enfraquecem as teses ou que devem ser supridas",
       "items": {
-        "type": "string"
-      },
-      "example": [
-        "PPP do empregador nao juntado",
-        "Pericia ergonomica nao realizada"
-      ]
+        "type": "object",
+        "required": ["descricao", "impacto"],
+        "properties": {
+          "descricao": { "type": "string", "example": "PPP do empregador nao juntado" },
+          "impacto": {
+            "type": "string",
+            "enum": ["bloqueante", "relevante", "acessorio"],
+            "description": "bloqueante = sem esta prova a tese principal falha; relevante = enfraquece mas nao inviabiliza; acessorio = melhora mas nao e essencial",
+            "example": "relevante"
+          },
+          "como_suprir": { "type": "string", "example": "Oficio ao empregador ou requerimento de exibicao documental" }
+        }
+      }
     },
+
     "riscos": {
       "type": "array",
-      "description": "Riscos juridicos ou probatorios identificados",
+      "description": "Riscos juridicos, probatorios ou processuais identificados",
       "items": {
-        "type": "string"
-      },
-      "example": [
-        "Laudo pericial pode ser desfavoravel se perito nao aplicar NTEP",
-        "Prescricao de diferencas anteriores a 5 anos"
-      ]
+        "type": "object",
+        "required": ["descricao", "probabilidade"],
+        "properties": {
+          "descricao": { "type": "string", "example": "Laudo pericial pode ser Tipo C (incapacidade atual), insuficiente para o NTEP" },
+          "probabilidade": {
+            "type": "string",
+            "enum": ["alta", "media", "baixa"],
+            "example": "media"
+          },
+          "mitigacao": { "type": "string", "example": "Formular quesitos blocos A-C antes da pericia para forcar resposta ao NTEP" }
+        }
+      }
     },
+
     "status_atual": {
       "type": "string",
       "description": "Descricao do estado atual do processo e da demanda imediata do escritorio",
       "example": "Laudo pericial desfavoravel recebido. Prazo de 15 dias para manifestacao. Necessario impugnar e requerer nova pericia."
     },
+
     "proxima_acao": {
       "type": "string",
       "description": "Proxima providencia concreta a ser tomada pelo escritorio",
       "example": "Redigir manifestacao ao laudo com impugnacao e pedido de nova pericia (art. 480 CPC)"
     },
+
     "skill_recomendada": {
       "type": "string",
-      "description": "Skill que deve ser acionada para a proxima acao",
-      "enum": [
-        "replica",
-        "pericia-acidentaria",
-        "pericia-previdenciaria",
-        "artigo-juridico",
-        "analise-precedente",
-        "mod4",
-        "outros"
-      ],
+      "enum": ["replica", "pericia-acidentaria", "pericia-previdenciaria", "artigo-juridico", "analise-precedente", "mod4", "outros"],
       "example": "pericia-acidentaria"
     }
   }
