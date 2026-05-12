@@ -41,7 +41,7 @@ licoes_aplicadas:
 regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
 verificado_em: 2026-05-11
-version: 4.0.0
+version: 4.1.0
 ---
 
 # mod4 — Padrão gráfico e estrutural do escritório
@@ -202,6 +202,7 @@ Checklist pós-geração:
 - [ ] Corpo com recuo `firstLine=720` visível
 - [ ] Nenhuma cor fora da paleta §2
 - [ ] Nenhum travessão intercalador, sublinhado ou bullet Unicode no corpo
+- [ ] Acentuação completa em todo o texto — verificar visualmente antes de entregar (L9)
 
 Checklist de conformidade V4:
 - [x] Frontmatter completo (4 coordenadas + categoria + version + verificado_em)
@@ -233,3 +234,46 @@ L6 — Versão instalada ≠ entregue. Aplico: output sempre via `present_files`
 L7 — Encadeamento condicional sob comando. Aplico: `chains_to` declarado; execução de `revisao-previa-mod4` é gate, não sugestão.
 
 L8 — Skill ambiente-consciente. Aplico: script usa `CONFIG/tipografia.json` como fonte única; nenhum valor tipográfico hardcodado no SKILL.md ou no script.
+
+L9 — Python 3 é nativamente UTF-8, mas o JSON de input pode chegar corrompido ou com
+acentuação omitida por descuido. Aplico: (1) JSON de input deve sempre ter acentuação
+completa — nunca sanitizar removendo acentos; (2) o script carrega JSON com
+`json.load(f, encoding='utf-8')` explícito; (3) verificação visual obrigatória no
+checklist pós-geração antes de entregar via `present_files`.
+
+---
+
+## §9 — Pipeline pós-criação (instalação e sincronização)
+
+Após gerar o `.docx`, o pipeline de entrega varia conforme o ambiente:
+
+### Via Cowork (automático se `git_auto_commit: true`)
+
+```powershell
+# 1. Backup R3 da versão anterior
+$ts = Get-Date -Format "yyyyMMdd-HHmmss"
+$bk = "C:\RaquelSkills\_backups\mod4"
+New-Item -ItemType Directory -Force -Path $bk | Out-Null
+Copy-Item "C:\RaquelSkills\skills\mod4\SKILL.md" "$bk\SKILL-$ts.md" -ErrorAction SilentlyContinue
+
+# 2. Commit e push
+cd C:\RaquelSkills
+git add skills/mod4/
+git commit -m "feat(mod4): v<versão> — <resumo>"
+git push
+```
+
+### Via interface web (download manual)
+
+1. Baixar o `.skill` entregue via `present_files`
+2. Extrair em `C:\RaquelSkills\skills\mod4\` (substituir SKILL.md e references/)
+3. Rodar o bloco PowerShell acima a partir do passo 2
+
+### Verificação de sincronização
+
+Após o push, confirmar:
+- `C:\RaquelSkills\skills\mod4\SKILL.md` — fonte canônica ✓
+- GitHub remoto — `git log --oneline -3` deve mostrar o commit ✓
+- Cowork — recarregar plugin para carregar nova versão ✓
+
+Mensagem de commit canônica: `feat(<nome>): v<versão> — <resumo-em-uma-linha>`
