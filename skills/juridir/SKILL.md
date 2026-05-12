@@ -10,7 +10,7 @@ projeto: TBD
 author: Raquel de Almeida Marques
 verified_in: 2026-05-11
 git_repo: C:\RaquelSkills
-git_auto_commit: true
+git_auto_commit: false
 ---
 
 # juridir — Organização de Pasta Jurídica

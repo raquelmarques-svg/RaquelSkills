@@ -10,7 +10,7 @@ categoria: capability
 version: 2.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
-git_auto_commit: true
+git_auto_commit: false
 depends_on: []
 chains_to:
   - artigo-juridico
