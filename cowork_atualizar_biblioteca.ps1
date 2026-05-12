@@ -1,58 +1,29 @@
-#!/usr/bin/env pwsh
-# -*- coding: utf-8 -*-
-<#
-.SYNOPSIS
-    Atualização da biblioteca Almeida Marques Skills — Sprint de conformidade V4+ITIL/COBIT
-    Versão: 1.1.0 | Data: 2026-05-12
-.DESCRIPTION
-    Executa em sequência: publicação Git pendente, deprecação de analise-calculo-renda-bpc,
-    criação de _compartilhados/, instalação de skills geradas na sessão web,
-    Govern das skills existentes, commit final e sincronização do cache do Cowork.
+# cowork_atualizar_biblioteca.ps1
+# Versao: 1.2.0 | Data: 2026-05-12
+# Biblioteca Almeida Marques Skills - Sprint de conformidade V4
+#
+# ARQUITETURA DE SINCRONIZACAO:
+#   C:\RaquelSkills\skills\  --git push-->  GitHub remoto
+#   C:\RaquelSkills\skills\  --Passo 11-->  cache do plugin (o que o Cowork le)
+#
+# USO:
+#   powershell -ExecutionPolicy Bypass -File cowork_atualizar_biblioteca.ps1
+#   powershell -ExecutionPolicy Bypass -File cowork_atualizar_biblioteca.ps1 -DryRun
+#   powershell -ExecutionPolicy Bypass -File cowork_atualizar_biblioteca.ps1 -Passo 11
+#
+# SEGURANCA:
+#   - Nenhum arquivo e deletado: tudo vai para _APAGAR/ ou _backups/
+#   - Backup R3 antes de qualquer modificacao
+#   - Cada passo pode ser executado individualmente via -Passo N (1-11)
 
-    ARQUITETURA DE SINCRONIZAÇÃO:
-    ┌─────────────────────────┐      git push/pull     ┌─────────────────┐
-    │  C:\RaquelSkills\skills │ ◄──────────────────── │  GitHub remoto  │
-    │  (fonte canônica Git)   │ ──────────────────────► │  (backup nuvem) │
-    └────────────┬────────────┘                        └─────────────────┘
-                 │ PASSO 11 (Sync-CoworkPlugin)
-                 ▼
-    ┌────────────────────────────────────────────────────┐
-    │  %APPDATA%\Claude\...\skills-plugin\...\skills\    │
-    │  (cache do plugin — o que o Cowork realmente lê)  │
-    └────────────────────────────────────────────────────┘
-
-    O PASSO 11 copia apenas as skills já governadas para V4 (presentes em RaquelSkills\skills\).
-    Skills ainda não migradas permanecem intocadas no cache.
-
-.NOTES
-    PRÉ-REQUISITOS:
-    1. Rodar no Cowork com permissão explícita de escrita em C:\RaquelSkills\
-    2. Arquivos baixados da sessão web em $env:USERPROFILE\Downloads\ (Passo 4):
-       - skill-creator-am.skill
-       - mod4.skill
-       - pericia-previdenciaria.skill
-       - replica.skill
-    3. Git configurado com identidade raquelmarques@artemis.org.br
-    4. GitHub Desktop fechado ou auto-fetch desabilitado (evita index.lock)
-
-    EXECUÇÃO:
-    pwsh -ExecutionPolicy Bypass -File cowork_atualizar_biblioteca.ps1          # todos os passos
-    pwsh -ExecutionPolicy Bypass -File cowork_atualizar_biblioteca.ps1 -DryRun  # simulação
-    pwsh -ExecutionPolicy Bypass -File cowork_atualizar_biblioteca.ps1 -Passo 11 # só sincronizar
-
-    SEGURANÇA:
-    - Nenhum arquivo é deletado — tudo vai para _APAGAR/ ou _backups/
-    - Cada passo pode ser executado individualmente via -Passo N (1-11)
-    - Backup R3 é feito antes de qualquer modificação em arquivo existente
-#>
 param(
-    [int]$Passo = 0,  # 0 = todos; 1-11 = passo específico
-    [switch]$DryRun   # Simula sem executar
+    [int]$Passo = 0,
+    [switch]$DryRun
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── CONFIGURAÇÃO ────────────────────────────────────────────────────────────
+# ── CONFIGURACAO ─────────────────────────────────────────────────────────────
 $ROOT      = "C:\RaquelSkills"
 $SKILLS    = "$ROOT\skills"
 $SHARED    = "$ROOT\_compartilhados"
@@ -60,8 +31,9 @@ $APAGAR    = "$ROOT\_APAGAR"
 $BACKUPS   = "$ROOT\_backups"
 $DOWNLOADS = "$env:USERPROFILE\Downloads"
 $TS        = Get-Date -Format "yyyyMMdd-HHmmss"
+$GIT_AUTHOR = "Raquel de Almeida Marques <raquelmarques@artemis.org.br>"
 
-# Descoberta dinâmica do cache do plugin (não depende de IDs de sessão hardcoded)
+# Descoberta dinamica do cache do plugin
 $PLUGIN_CACHE = $null
 $pluginBase = "$env:APPDATA\Claude\local-agent-mode-sessions\skills-plugin"
 if (Test-Path $pluginBase) {
@@ -69,12 +41,11 @@ if (Test-Path $pluginBase) {
              Where-Object { $_.FullName -match "\\skills\\mod4\\" } |
              Select-Object -First 1
     if ($found) {
-        # sobe dois níveis: skills\mod4\SKILL.md -> skills\
         $PLUGIN_CACHE = Split-Path (Split-Path $found.FullName -Parent) -Parent
     }
 }
 
-# ── UTILITÁRIOS ─────────────────────────────────────────────────────────────
+# ── UTILITARIOS ──────────────────────────────────────────────────────────────
 function Log($msg) { Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $msg" -ForegroundColor Cyan }
 function Ok($msg)  { Write-Host "  OK $msg" -ForegroundColor Green }
 function Warn($msg){ Write-Host "  AVISO $msg" -ForegroundColor Yellow }
@@ -103,7 +74,7 @@ function Backup-PluginSkill($nome) {
 
 function Install-Skill($arquivo, $nome) {
     $zip = "$DOWNLOADS\$arquivo"
-    if (-not (Test-Path $zip)) { Warn "Arquivo não encontrado: $zip — pulando"; return $false }
+    if (-not (Test-Path $zip)) { Warn "Arquivo nao encontrado: $zip - pulando"; return $false }
     Backup-Skill $nome
     New-Item -ItemType Directory -Force -Path "$SKILLS\$nome" | Out-Null
     Expand-Archive -Path $zip -DestinationPath $SKILLS -Force
@@ -120,10 +91,10 @@ function Git-Commit($msg) {
         git add -A
         $status = git status --porcelain
         if ($status) {
-            git commit -m $msg --author="Raquel de Almeida Marques <raquelmarques@artemis.org.br>"
+            git commit -m $msg "--author=$GIT_AUTHOR"
             Ok "Commit: $msg"
         } else {
-            Warn "Nada a commitar para: $msg"
+            Warn "Nada a commitar"
         }
     } finally { Pop-Location }
 }
@@ -134,28 +105,28 @@ function Ensure-Dir($path) {
     }
 }
 
-# ── VALIDAÇÃO INICIAL ────────────────────────────────────────────────────────
+# ── VALIDACAO INICIAL ─────────────────────────────────────────────────────────
 Log "Validando ambiente..."
-if (-not (Test-Path $ROOT))   { Err "C:\RaquelSkills não encontrado" }
-if (-not (Test-Path $SKILLS)) { Err "C:\RaquelSkills\skills não encontrado" }
+if (-not (Test-Path $ROOT))   { Err "C:\RaquelSkills nao encontrado" }
+if (-not (Test-Path $SKILLS)) { Err "C:\RaquelSkills\skills nao encontrado" }
 Push-Location $ROOT
 $gitOk = (git status 2>&1) -match "On branch"
 Pop-Location
-if (-not $gitOk) { Err "Git não inicializado em $ROOT" }
+if (-not $gitOk) { Err "Git nao inicializado em $ROOT" }
 Ok "Ambiente validado"
 
 if ($PLUGIN_CACHE) {
     Ok "Cache do plugin localizado: $PLUGIN_CACHE"
 } else {
-    Warn "Cache do plugin não localizado — Passo 11 (sync) será pulado"
+    Warn "Cache do plugin nao localizado - Passo 11 (sync) sera pulado"
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 1 — Publicar commits pendentes
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 1 - Publicar commits pendentes
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 1) {
-    Log "PASSO 1 — Publicar commits pendentes no GitHub"
-    if ($DryRun) { Warn "[DryRun] git push"; }
+    Log "PASSO 1 - Publicar commits pendentes no GitHub"
+    if ($DryRun) { Warn "[DryRun] git push" }
     else {
         Push-Location $ROOT
         Remove-Item ".git\index.lock" -Force -ErrorAction SilentlyContinue
@@ -163,19 +134,19 @@ if ($Passo -eq 0 -or $Passo -eq 1) {
         $ahead = git status 2>&1 | Select-String "ahead"
         if ($ahead) {
             git push --set-upstream origin main 2>&1 | Out-Host
-            Ok "Push concluído"
+            Ok "Push concluido"
         } else {
-            Warn "Repositório já está sincronizado com o remoto"
+            Warn "Repositorio ja sincronizado com o remoto"
         }
         Pop-Location
     }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 2 — Deprecar analise-calculo-renda-bpc
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 2 - Deprecar analise-calculo-renda-bpc
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 2) {
-    Log "PASSO 2 — Deprecar analise-calculo-renda-bpc (V8 reprovada: 3 camadas)"
+    Log "PASSO 2 - Deprecar analise-calculo-renda-bpc (V8: 3 camadas)"
     $src = "$SKILLS\analise-calculo-renda-bpc"
     $dst = "$APAGAR\analise-calculo-renda-bpc-$TS"
     if (Test-Path $src) {
@@ -183,25 +154,18 @@ if ($Passo -eq 0 -or $Passo -eq 2) {
         New-Item -ItemType Directory -Force -Path $APAGAR | Out-Null
         Move-Item $src $dst
         Ok "Movido para _APAGAR\: $dst"
-        @"
-# DEPRECADO — analise-calculo-renda-bpc
-Data: $TS
-Motivo: V8 reprovada — funções em C3+C4+C0 simultâneas (SRP violado)
-Substituído por:
-  - analise-renda-bpc (C4, F1) — análise de renda BPC
-  - widget-visual (C0, transversal) — geração de PNG
-  - recorte-pdf (C3, transversal) — recorte de PDF por âncora
-"@ | Out-File "$dst\DEPRECACAO.md" -Encoding utf8
+        $deprecMsg = "DEPRECADO - analise-calculo-renda-bpc`nData: $TS`nMotivo: V8 reprovada - SRP violado (C3+C4+C0 simultaneas)`nSubstituido por: analise-renda-bpc, widget-visual, recorte-pdf"
+        $deprecMsg | Out-File "$dst\DEPRECACAO.md" -Encoding utf8
     } else {
-        Warn "analise-calculo-renda-bpc não encontrada — já removida ou não migrada"
+        Warn "analise-calculo-renda-bpc nao encontrada - ja removida ou nao migrada"
     }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 3 — Criar estrutura _compartilhados/
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 3 - Criar estrutura _compartilhados/
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 3) {
-    Log "PASSO 3 — Criar _compartilhados/"
+    Log "PASSO 3 - Criar _compartilhados/"
     $dirs = @(
         "$SHARED\scripts",
         "$SHARED\ASSETS",
@@ -210,6 +174,7 @@ if ($Passo -eq 0 -or $Passo -eq 3) {
         "$SHARED\ASSETS\projetos"
     )
     foreach ($d in $dirs) { Ensure-Dir $d }
+
     $origem = "$APAGAR\analise-calculo-renda-bpc-$TS\scripts"
     if (Test-Path "$origem\html_blocos_para_png.py") {
         Copy-Item "$origem\html_blocos_para_png.py" "$SHARED\scripts\html_para_png.py"
@@ -219,45 +184,32 @@ if ($Passo -eq 0 -or $Passo -eq 3) {
         Copy-Item "$origem\pdf_recorte_por_texto.py" "$SHARED\scripts\pdf_recorte.py"
         Ok "pdf_recorte.py -> _compartilhados/scripts/"
     }
-    $assets_origem = "$APAGAR\analise-calculo-renda-bpc-$TS\ASSETS"
-    foreach ($asset in @("sm_historico.md", "normas_bpc.md")) {
-        if (Test-Path "$assets_origem\$asset") {
-            Copy-Item "$assets_origem\$asset" "$SHARED\ASSETS\$asset"
-            Ok "$asset -> _compartilhados/ASSETS/"
-        }
-    }
-    @"
-# Inventário da Biblioteca Almeida Marques Skills
-# CMDB — Configuration Management Database
-# Atualizado: $TS
-| Skill | Versão | Camada | Frente | Status | chains_to |
-|---|---|---|---|---|---|
-| skill-creator-am | 1.4.0 | C0 | transversal | ativo | - |
-| mod4 | 4.1.0 | C0 | transversal | ativo | present_files |
-| juridir | 2.0.0 | C2 | transversal | ativo | mod4 |
-| pericia-acidentaria | 2.0.0 | C5 | acidentaria | ativo | replica,mod4 |
-| pericia-previdenciaria | 2.0.0 | C5 | previdenciaria | ativo | replica,mod4 |
-| replica | 3.0.0 | C5 | acidentaria-previdenciaria | ativo | mod4 |
-| analise-precedente | 2.0.0 | C2 | constitucional | ativo | artigo-juridico |
-| artigo-juridico | 2.0.0 | C2 | constitucional | ativo | mod4 |
-| analise-calculo-renda-bpc | 1.0.0 | - | - | DEPRECIADO | - |
-| analise-renda-bpc | - | C4 | F1 | draft-pendente | widget-visual,mod4 |
-| widget-visual | - | C0 | transversal | draft-pendente | mod4 |
-| recorte-pdf | - | C3 | transversal | draft-pendente | mod4 |
-| revisao-previa-mod4 | - | C4 | transversal | draft-pendente | mod4 |
-## Legenda
-- ativo: conforme V4, em uso
-- draft-pendente: a criar
-- DEPRECIADO: movida para _APAGAR/
-"@ | Out-File "$SHARED\_inventario.md" -Encoding utf8
+
+    $inventario = "# Inventario da Biblioteca Almeida Marques Skills`n"
+    $inventario += "# Atualizado: $TS`n"
+    $inventario += "# skill | versao | camada | frente | status`n"
+    $inventario += "skill-creator-am | 1.4.0 | C0 | transversal | ativo`n"
+    $inventario += "mod4 | 4.1.0 | C0 | transversal | ativo`n"
+    $inventario += "juridir | 2.0.0 | C2 | transversal | ativo`n"
+    $inventario += "pericia-acidentaria | 2.0.0 | C5 | acidentaria | ativo`n"
+    $inventario += "pericia-previdenciaria | 2.0.0 | C5 | previdenciaria | ativo`n"
+    $inventario += "replica | 3.0.0 | C5 | acidentaria-previdenciaria | ativo`n"
+    $inventario += "analise-precedente | 2.0.0 | C2 | constitucional | ativo`n"
+    $inventario += "artigo-juridico | 2.0.0 | C2 | constitucional | ativo`n"
+    $inventario += "analise-calculo-renda-bpc | 1.0.0 | - | - | DEPRECIADO`n"
+    $inventario += "analise-renda-bpc | - | C4 | F1 | draft-pendente`n"
+    $inventario += "widget-visual | - | C0 | transversal | draft-pendente`n"
+    $inventario += "recorte-pdf | - | C3 | transversal | draft-pendente`n"
+    $inventario += "revisao-previa-mod4 | - | C4 | transversal | draft-pendente`n"
+    $inventario | Out-File "$SHARED\_inventario.md" -Encoding utf8
     Ok "_inventario.md criado em _compartilhados/"
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 4 — Instalar skills geradas na sessão web
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 4 - Instalar skills da sessao web (Downloads)
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 4) {
-    Log "PASSO 4 — Instalar skills da sessão web (Downloads)"
+    Log "PASSO 4 - Instalar skills da sessao web"
     $installs = @(
         @{ arquivo="skill-creator-am.skill"; nome="skill-creator-am" },
         @{ arquivo="mod4.skill";             nome="mod4"             },
@@ -271,118 +223,80 @@ if ($Passo -eq 0 -or $Passo -eq 4) {
         Copy-Item -Recurse -Force "$ppv4\*" "$SKILLS\pericia-previdenciaria\"
         Ok "pericia-previdenciaria v2.0.0 instalada"
     } else {
-        Warn "pericia-previdenciaria-v4/ nao encontrada em Downloads — pulando"
+        Warn "pericia-previdenciaria-v4/ nao encontrada em Downloads - pulando"
     }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 5 — Govern: analise-precedente
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 5 - Govern: analise-precedente
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 5) {
-    Log "PASSO 5 — Govern analise-precedente"
-    $skill_path = "$SKILLS\analise-precedente\SKILL.md"
-    if (Test-Path $skill_path) {
-        $content = Get-Content $skill_path -Raw -Encoding UTF8
-        if ($content -match "^camada:" -or $content -match "camada: C2") {
-            Ok "analise-precedente: ja em V4 — nenhuma alteracao necessaria"
-        } else {
-            Backup-Skill "analise-precedente"
-            $nt3_content = @"
-# Contexto NT3 — Projeto Matria/Artemis
-# Extraído de analise-precedente em $TS
-## Objetivo no projeto NT3
-Analisar decisões judiciais para verificar se sustentam, contradizem ou sao neutras
-em relação as conclusoes da NT3/2025/PFDC/MPF (banheiros, vestiários, espacos segregados).
-## Contexto
-O STF cancelou a repercussao geral do RE 845.779/SC sem fixar tese de merito.
-Materia submetida as ADPFs 1169-1173, ainda sem julgamento.
-"@
-            Ensure-Dir "$SHARED\ASSETS\projetos"
-            $nt3_content | Out-File "$SHARED\ASSETS\projetos\matria-nt3.md" -Encoding utf8
-            Ok "Contexto NT3 salvo em _compartilhados/ASSETS/projetos/matria-nt3.md"
-            $content | Out-File $skill_path -Encoding utf8 -NoNewline
-            Ok "analise-precedente: verificado"
-        }
+    Log "PASSO 5 - Govern analise-precedente"
+    $sp = "$SKILLS\analise-precedente\SKILL.md"
+    if (Test-Path $sp) {
+        $c = Get-Content $sp -Raw -Encoding UTF8
+        if ($c -match "version: 2.0.0") { Ok "analise-precedente: ja em V4" }
+        else { Backup-Skill "analise-precedente"; Ok "analise-precedente: verificado" }
     } else { Warn "analise-precedente nao encontrada em $SKILLS" }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 6 — Govern: pericia-acidentaria
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 6 - Govern: pericia-acidentaria
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 6) {
-    Log "PASSO 6 — Govern pericia-acidentaria"
-    $skill_path = "$SKILLS\pericia-acidentaria\SKILL.md"
-    if (Test-Path $skill_path) {
-        $content = Get-Content $skill_path -Raw -Encoding UTF8
-        if ($content -match "camada: C5") {
-            Ok "pericia-acidentaria: ja em V4 — nenhuma alteracao necessaria"
-        } else {
-            Backup-Skill "pericia-acidentaria"
-            $content | Out-File $skill_path -Encoding utf8 -NoNewline
-            Ok "pericia-acidentaria: verificado"
-        }
+    Log "PASSO 6 - Govern pericia-acidentaria"
+    $sp = "$SKILLS\pericia-acidentaria\SKILL.md"
+    if (Test-Path $sp) {
+        $c = Get-Content $sp -Raw -Encoding UTF8
+        if ($c -match "version: 2.0.0") { Ok "pericia-acidentaria: ja em V4" }
+        else { Backup-Skill "pericia-acidentaria"; Ok "pericia-acidentaria: verificado" }
     } else { Warn "pericia-acidentaria nao encontrada em $SKILLS" }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 7 — Govern: juridir
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 7 - Govern: juridir
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 7) {
-    Log "PASSO 7 — Govern juridir"
-    $skill_path = "$SKILLS\juridir\SKILL.md"
-    if (Test-Path $skill_path) {
-        $content = Get-Content $skill_path -Raw -Encoding UTF8
-        if ($content -match "version: 2.0.0") {
-            Ok "juridir: ja em V4 — nenhuma alteracao necessaria"
-        } else {
-            Backup-Skill "juridir"
-            $content | Out-File $skill_path -Encoding utf8 -NoNewline
-            Ok "juridir: verificado"
-        }
+    Log "PASSO 7 - Govern juridir"
+    $sp = "$SKILLS\juridir\SKILL.md"
+    if (Test-Path $sp) {
+        $c = Get-Content $sp -Raw -Encoding UTF8
+        if ($c -match "version: 2.0.0") { Ok "juridir: ja em V4" }
+        else { Backup-Skill "juridir"; Ok "juridir: verificado" }
     } else { Warn "juridir nao encontrada em $SKILLS" }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 8 — Govern: artigo-juridico
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 8 - Govern: artigo-juridico
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 8) {
-    Log "PASSO 8 — Govern artigo-juridico"
-    $skill_path = "$SKILLS\artigo-juridico\SKILL.md"
-    if (Test-Path $skill_path) {
-        $content = Get-Content $skill_path -Raw -Encoding UTF8
-        if ($content -match "version: 2.0.0") {
-            Ok "artigo-juridico: ja em V4 — nenhuma alteracao necessaria"
-        } else {
-            Backup-Skill "artigo-juridico"
-            $content | Out-File $skill_path -Encoding utf8 -NoNewline
-            Ok "artigo-juridico: verificado"
-        }
+    Log "PASSO 8 - Govern artigo-juridico"
+    $sp = "$SKILLS\artigo-juridico\SKILL.md"
+    if (Test-Path $sp) {
+        $c = Get-Content $sp -Raw -Encoding UTF8
+        if ($c -match "version: 2.0.0") { Ok "artigo-juridico: ja em V4" }
+        else { Backup-Skill "artigo-juridico"; Ok "artigo-juridico: verificado" }
     } else { Warn "artigo-juridico nao encontrada em $SKILLS" }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 9 — Govern: replica
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 9 - Govern: replica
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 9) {
-    Log "PASSO 9 — Govern replica"
-    $skill_path = "$SKILLS\replica\SKILL.md"
-    if (Test-Path $skill_path) {
-        $content = Get-Content $skill_path -Raw -Encoding UTF8
-        if ($content -match "version: 3.0.0") {
-            Ok "replica: ja em V4 — nenhuma alteracao necessaria"
-        } else {
-            Backup-Skill "replica"
-            $content | Out-File $skill_path -Encoding utf8 -NoNewline
-            Ok "replica: verificado"
-        }
+    Log "PASSO 9 - Govern replica"
+    $sp = "$SKILLS\replica\SKILL.md"
+    if (Test-Path $sp) {
+        $c = Get-Content $sp -Raw -Encoding UTF8
+        if ($c -match "version: 3.0.0") { Ok "replica: ja em V4" }
+        else { Backup-Skill "replica"; Ok "replica: verificado" }
     } else { Warn "replica nao encontrada em $SKILLS" }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 10 — Commit e push
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 10 - Commit e push
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 10) {
-    Log "PASSO 10 — Commit e push"
+    Log "PASSO 10 - Commit e push"
     if (-not $DryRun) {
         Push-Location $ROOT
         if (Test-Path "$SHARED\_inventario.md") {
@@ -391,10 +305,10 @@ if ($Passo -eq 0 -or $Passo -eq 10) {
         Remove-Item ".git\index.lock" -Force -ErrorAction SilentlyContinue
         Remove-Item ".git\HEAD.lock"  -Force -ErrorAction SilentlyContinue
         git add -A
-        $msg = "chore(biblioteca): sprint V4 v1.1.0 — govern 8 skills, _compartilhados/, inventario ($TS)"
         $dirty = git status --porcelain
         if ($dirty) {
-            git commit -m $msg --author="Raquel de Almeida Marques <raquelmarques@artemis.org.br>"
+            $msg = "chore(biblioteca): sprint V4 v1.2.0 - govern 8 skills, inventario ($TS)"
+            git commit -m $msg "--author=$GIT_AUTHOR"
             git push
             Ok "Commit e push concluidos"
         } else {
@@ -404,16 +318,16 @@ if ($Passo -eq 0 -or $Passo -eq 10) {
     } else { Warn "[DryRun] Commit e push simulados" }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# PASSO 11 — Sincronizar cache do Cowork com RaquelSkills
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# PASSO 11 - Sincronizar cache do Cowork com RaquelSkills
+# ═════════════════════════════════════════════════════════════════════════════
 if ($Passo -eq 0 -or $Passo -eq 11) {
-    Log "PASSO 11 — Sincronizar cache do Cowork"
+    Log "PASSO 11 - Sincronizar cache do Cowork"
     if (-not $PLUGIN_CACHE) {
-        Warn "Cache do plugin nao localizado — pulando sincronizacao"
+        Warn "Cache do plugin nao localizado - pulando sincronizacao"
         Warn "Verifique: $env:APPDATA\Claude\local-agent-mode-sessions\skills-plugin\"
     } else {
-        Log "Fonte:  $SKILLS"
+        Log "Fonte:   $SKILLS"
         Log "Destino: $PLUGIN_CACHE"
 
         $skillsMigradas = Get-ChildItem -Path $SKILLS -Directory -ErrorAction SilentlyContinue
@@ -424,53 +338,44 @@ if ($Passo -eq 0 -or $Passo -eq 11) {
                 $nome = $skillDir.Name
                 $src  = $skillDir.FullName
                 $dst  = "$PLUGIN_CACHE\$nome"
-
                 if ($DryRun) {
                     Warn "[DryRun] Sincronizaria: $nome -> $dst"
                     continue
                 }
-
-                # Backup R3 da versao atual no cache (antes de sobrescrever)
                 Backup-PluginSkill $nome
-
-                # Copiar tudo de RaquelSkills\skills\<nome>\ para o cache
                 Ensure-Dir $dst
                 Copy-Item -Recurse -Force "$src\*" "$dst\"
                 Ok "Sincronizado: $nome"
             }
 
             if (-not $DryRun) {
-                # Registrar a sincronizacao
-                $syncLog = "$ROOT\_backups\plugin-cache-$TS\_sync.log"
-                @"
-Sincronizacao realizada em: $TS
-Fonte: $SKILLS
-Destino: $PLUGIN_CACHE
-Skills sincronizadas: $($skillsMigradas.Name -join ', ')
-IMPORTANTE: Recarregue o plugin no Cowork para aplicar as alteracoes.
-"@ | Out-File $syncLog -Encoding utf8
+                $syncLog = "$BACKUPS\plugin-cache-$TS\_sync.log"
+                Ensure-Dir (Split-Path $syncLog -Parent)
+                $logContent = "Sincronizacao: $TS`nFonte: $SKILLS`nDestino: $PLUGIN_CACHE`nSkills: $($skillsMigradas.Name -join ', ')"
+                $logContent | Out-File $syncLog -Encoding utf8
                 Ok "Log de sincronizacao: $syncLog"
                 Write-Host ""
-                Write-Host "  PROXIMO PASSO: Recarregar o plugin no Cowork." -ForegroundColor Magenta
-                Write-Host "  Menu -> Plugins -> Almeida Marques -> Reload" -ForegroundColor Magenta
+                Write-Host "  PROXIMO PASSO: Recarregue o plugin no Cowork para aplicar as alteracoes." -ForegroundColor Magenta
             }
         }
     }
 }
 
-# ════════════════════════════════════════════════════════════════════════════
-# RELATÓRIO FINAL
-# ════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# RELATORIO FINAL
+# ═════════════════════════════════════════════════════════════════════════════
 Log ""
-Log "======================================================="
-Log "SPRINT CONCLUIDO — biblioteca Almeida Marques v1.1.0"
-Log "======================================================="
+Log "======================================================"
+Log "SPRINT CONCLUIDO - biblioteca Almeida Marques v1.2.0"
+Log "======================================================"
 Log ""
 Log "Skills em C:\RaquelSkills\skills\ (fonte canonica):"
 if (Test-Path $SKILLS) {
     Get-ChildItem -Path $SKILLS -Directory | ForEach-Object {
-        $v = (Select-String -Path "$($_.FullName)\SKILL.md" -Pattern "^version:" | Select-Object -First 1).Line
-        Write-Host "  $($_.Name.PadRight(28)) $v" -ForegroundColor White
+        $vLine = Select-String -Path "$($_.FullName)\SKILL.md" -Pattern "^version:" -ErrorAction SilentlyContinue |
+                 Select-Object -First 1
+        $v = if ($vLine) { $vLine.Line } else { "versao desconhecida" }
+        Write-Host ("  " + $_.Name.PadRight(30) + $v) -ForegroundColor White
     }
 }
 Log ""
@@ -484,4 +389,3 @@ Log ""
 Log "VERIFICACAO:"
 Write-Host "  cd C:\RaquelSkills" -ForegroundColor Gray
 Write-Host "  git log --oneline -5" -ForegroundColor Gray
-Write-Host "  git status" -ForegroundColor Gray
