@@ -12,9 +12,11 @@ version: 1.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
 git_auto_commit: false
-depends_on:
-  - _compartilhados/SCHEMAS/output/fatos-estruturados.v1.json
-  - _compartilhados/SCHEMAS/output/dossie-caso.v1.json
+depends_on: []
+recursos_compartilhados:
+  schemas:
+    - _compartilhados/SCHEMAS/output/fatos-estruturados.v1.json
+    - _compartilhados/SCHEMAS/output/dossie-caso.v1.json
 chains_to:
   - mod4
 chains_from:
