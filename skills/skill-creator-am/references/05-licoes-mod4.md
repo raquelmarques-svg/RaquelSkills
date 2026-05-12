@@ -180,3 +180,89 @@ Aplicação:
 - Quando V8 reprova: nomear as skills resultantes antes de criar qualquer uma
 
 Aplica em: toda operação da skill-creator-am, sem exceção.
+
+### L14 — Versão web ≠ versão instalada no Cowork (extensão de L6)
+
+Problema: script de instalação assumiu que `.skill` da sessão web estava em Downloads. Cowork já tinha versão mais recente. Script pulou silenciosamente. Versão incorreta mantida sem alerta claro.
+
+Aplicação:
+- Pipeline §4-G verifica versão instalada antes de sobrescrever: `version_instalada >= version_nova` → pular; `version_instalada < version_nova` → instalar
+- Nunca sobrescrever sem comparar versões
+- Bloquear (não apenas avisar) quando arquivo esperado não existe em passo crítico
+
+Aplica em: toda skill com pipeline de instalação via script.
+
+### L15 — Script que depende de caminho de download é frágil
+
+Problema: `$env:USERPROFILE\Downloads\` hardcodado. Arquivo não estava lá. Script emitiu aviso e seguiu — comportamento incorreto para passo crítico.
+
+Aplicação:
+- Passos de instalação são bloqueantes quando arquivo não existe
+- Verificar versão instalada primeiro: se igual ou superior à esperada, pular sem aviso; se inferior, bloquear e instruir o download
+- Caminhos configuráveis via variável no topo do script, nunca hardcodados no meio
+
+Aplica em: todo script de instalação ou deploy da biblioteca.
+
+### L16 — Cowork já tinha feito parte do trabalho sem rastro claro
+
+Problema: sessão web diagnosticou problemas que sessões Cowork anteriores já haviam resolvido. Sem leitura do `_inventario.md` e do `git log` no início, horas gastas em diagnóstico desnecessário.
+
+Aplicação:
+- Toda sessão de trabalho em skills começa com: `git log --oneline -10` + leitura de `_compartilhados/_inventario.md`
+- O inventário é o ponto de entrada obrigatório — não a memória da sessão anterior
+- Adicionar ao §0-Leituras contextuais obrigatórias da skill-creator-am: verificar inventário antes de qualquer diagnóstico
+
+Aplica em: toda sessão que envolva criação, edição ou diagnóstico de skills.
+
+### L17 — Ambiente de execução não verificado: `pwsh` vs `powershell`
+
+Problema: script escrito com `pwsh` (PS7), ambiente tinha apenas `powershell` (PS5). Erro trivial, tempo desnecessário.
+
+Aplicação:
+```powershell
+# Cabeçalho padrão de todo script da biblioteca
+$executor = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
+```
+Ou escrever apenas com sintaxe compatível com PS5. Nunca assumir PS7 disponível.
+Adicionar ao §4-E (scripts/) da skill-creator-am: scripts PowerShell da biblioteca devem ser compatíveis com PS5 por padrão.
+
+Aplica em: todo script PowerShell da biblioteca.
+
+### L18 — Sessão web gasta tokens em execução que pertence ao Cowork
+
+Problema: sessão web gerou arquivos que o Cowork já tinha, reempacotou skills completas em vez de editar arquivos individuais, debateu arquitetura que poderia ter sido executada diretamente. Metade da sessão em trabalho que o Cowork faz mais rápido e sem consumo de contexto.
+
+Aplicação:
+- Sessão web: design, decisão, aprovação de blueprint
+- Cowork: execução, escrita direta, commit, push
+- Divisão prática: qualquer tarefa com mais de 2 arquivos vai para o Cowork
+- Sessão web não gera `.skill` completo quando o objetivo é atualizar arquivo individual — edita o arquivo e instrui o Cowork a commitar
+
+Aplica em: toda decisão de onde executar trabalho de skills.
+
+---
+
+## Tabela de aplicabilidade atualizada
+
+| Lição | Aplica em |
+|---|---|
+| L1 | Skills que escrevem arquivos |
+| L2 | Toda skill |
+| L3 | Toda skill |
+| L4 | Skills que pedem confirmação ou encadeiam |
+| L5 | Skills que produzem texto |
+| L6 | Skills com versionamento |
+| L7 | Skills que chamam outras |
+| L8 | Skills que escrevem arquivos |
+| L9 | Skills com scripts Python |
+| L10 | Skills que produzem texto jurídico ou recebem input estruturado |
+| L11 | Toda skill criada ou modificada |
+| L12 | Toda operação da skill-creator-am |
+| L13 | Toda skill com pipeline de dados entre skills |
+| L14 | Scripts de instalação/deploy |
+| L15 | Scripts de instalação/deploy |
+| L16 | Toda sessão de trabalho em skills |
+| L17 | Scripts PowerShell da biblioteca |
+| L18 | Toda decisão de ambiente de execução |
+| LM1 | mod4 e skills com DOCX corporativo |
+| LM2 | mod4 apenas |

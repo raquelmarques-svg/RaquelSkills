@@ -29,11 +29,11 @@ recursos_compartilhados:
   templates:
     - template-skill-canonico
 licoes_aplicadas:
-  - L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, LM1, LM2
+  - L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, LM1, LM2
 regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
 verificado_em: 2026-05-11
-version: 1.4.0
+version: 1.5.0
 ---
 
 # skill-creator-am — Criador de skills da biblioteca Almeida Marques
@@ -85,8 +85,9 @@ Antes de produzir output, verifico e leio nesta ordem:
 3. `/Drive/Claude/informacoes/padrao-redacional.md` para regras de redação
 4. Listo a biblioteca atual em `C:\RaquelSkills\skills\` para deduplicação
 5. Confirmo que `/Drive/Claude/glossario/transversal/` existe para vocabulário
-6. V8 foi aplicada? (semântica, funcional, pragmática, duplicação, contrato)
-7. V9 foi aplicada? (blueprint CRC + SOLID + DDD + ITIL/COBIT) — obrigatório em Create e Refactor
+6. Inventário lido? (`_compartilhados/_inventario.md` + `git log --oneline -10`) — L16
+7. V8 foi aplicada? (semântica, funcional, pragmática, duplicação, contrato)
+8. V9 foi aplicada? (blueprint CRC + SOLID + DDD + ITIL/COBIT) — obrigatório em Create e Refactor
 
 Se qualquer item falta, sinalizo antes de prosseguir.
 
@@ -196,11 +197,13 @@ Dados autossuficientes consumidos pela skill. Categorias: normas indexadas, fór
 
 Schema JSON com campos obrigatórios/opcionais, `description`, `example`, `enum` e validação de tipos. Define o contrato entre quem chama a skill e o que ela espera. Ver detalhes em `references/03-artefatos-obrigatorios.md`.
 
-### §4-E — scripts/ (obrigatório quando skill executa código Python)
+### §4-E — scripts/ (obrigatório quando skill executa código Python e PowerShell)
 
 Scripts com `#!/usr/bin/env python3`, `# -*- coding: utf-8 -*-`, acentuação completa (L9), `argparse` para CLI, tratamento de erro, `main()` isolada e docstring. Ver detalhes em `references/03-artefatos-obrigatorios.md`.
 
 ### §4-E.1 — tests/ (obrigatório quando scripts/ existe)
+
+Scripts PowerShell: compatíveis com PS5 por padrão (L17). Verificar versão instalada antes de instalar (L14-L15).
 
 Gerar `run_tests.py` (cópia de `scripts/run_tests.py`) e ≥ 2 casos com `input.json` + `expected_output.md`. Executar antes de empacotar — falha bloqueia o `.skill`. Estrutura:
 
@@ -490,4 +493,6 @@ LM1 e LM2 — Lições mod4-específicas (zipfile sobre template; letterhead VML
 
 L12 — Escopo misto é o erro mais caro. Aplico: V8 em todo modo operacional.
 
-L13 — Sem contrato, não há serviço. Aplico: schema de input e output obrigatórios (A16). Pipeline sem contratos explícitos depende de contexto implícito — frágil e irrastreável. Aplico: V8 em todo modo operacional, sem exceção. Skill com funções em camadas distintas não falha no momento da criação — falha silenciosamente em produção, ativando quando não deveria e gerando output inconsistente. O custo de split tardio é 5× maior que o de split na criação.
+L13 — Sem contrato, não há serviço. Aplico: schema de input e output obrigatórios (A16). Pipeline sem contratos explícitos depende de contexto implícito — frágil e irrastreável.
+
+L14-L18 — Lições de operação e ambiente. Ver `references/05-licoes-mod4.md` para detalhe completo. Resumo: verificar versão antes de instalar (L14); caminhos configuráveis, instalação bloqueante (L15); inventário antes de qualquer diagnóstico (L16); scripts PS5-compatíveis (L17); web para design, Cowork para execução (L18). Aplico: V8 em todo modo operacional, sem exceção. Skill com funções em camadas distintas não falha no momento da criação — falha silenciosamente em produção, ativando quando não deveria e gerando output inconsistente. O custo de split tardio é 5× maior que o de split na criação.
