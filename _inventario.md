@@ -12,7 +12,7 @@ artigo-juridico | 2.0.0 | C2 | constitucional | ativo
 dossie-caso | 1.0.0 | C1 | transversal | ativo
 levanta-fatos | 1.0.0 | C1 | transversal | ativo
 check-protocolo | 1.0.0 | C4 | transversal | ativo
-check-cumprimento-sentenca | 0.1.0 | C4 | transversal | phase-b
+check-cumprimento-sentenca | 1.0.0 | C4 | transversal | ativo
 autorrevisao-skill | 1.0.0 | C6 | transversal | ativo
 gotcha-skill | 1.0.0 | C6 | transversal | ativo
 governanca-skills | 1.0.0 | C6 | transversal | ativo
