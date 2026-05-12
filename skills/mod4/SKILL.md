@@ -14,7 +14,8 @@ categoria: capability
 justificativa: Produz arquivo .docx concreto entregue via present_files; não é preference porque gera output físico, não configura comportamento.
 depends_on:
   - revisao-previa-mod4
-chains_to: []  # present_files é ferramenta Cowork, não skill
+chains_to:
+  - present_files
 frentes_consultadas:
   - transversal
 recursos_compartilhados:
@@ -36,14 +37,11 @@ recursos_compartilhados:
     - references/04-paleta-elementos.md
     - references/05-schema-input.md
 licoes_aplicadas:
-  - L1, L2, L3, L5, L6, L7, L8
+  - L1, L2, L3, L5, L6, L7, L8, L9, LD1, LD2, LD3, LD4
 regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
-verificado_em: 2026-05-11
-version: 4.1.0
-git_repo: C:\RaquelSkills
-git_auto_commit: false
-
+verificado_em: 2026-05-12
+version: 4.2.0
 ---
 
 # mod4 — Padrão gráfico e estrutural do escritório
@@ -116,7 +114,7 @@ DELEGO PARA:
 | Corpo | `#222222` | Texto de corpo |
 | Quase-preto | `#111111` | Endereçamento, nome da ação, títulos primários |
 
-Regra absoluta: nenhuma cor fora desta paleta. Elementos de cor não excedem 5% da área útil total.
+Regra absoluta: nenhuma cor fora desta paleta. Elementos de cor não excecem 5% da área útil total.
 
 Ver detalhamento em `references/04-paleta-elementos.md`.
 
@@ -150,23 +148,25 @@ Ordem de montagem via `build_full_body` (hardcoded no script):
 2.  Tribunal/localização (opcional)
 3.  Caixa do processo (opcional)
 4.  Qualificação da autora
-5.  Nome da ação
-6.  Subtítulo da ação (opcional)
+5.  Nome da ação  ← estilo Ttulo1
+6.  Subtítulo da ação (opcional)  ← LD2: seco, apenas o discriminante
 7.  Qualificação do réu (opcional)
 ──────────────────────────────────────
-8.  [OBRIGATÓRIO] I. PRELIMINARES E REQUISITOS PROCESSUAIS
+8.  [OBRIGATÓRIO] I. PRELIMINARES E REQUISITOS PROCESSUAIS  ← estilo Ttulo2
 ──────────────────────────────────────
-9.  Seções de mérito (secoes[1..N])
+9.  Seções de mérito (secoes[1..N])  ← estilo Ttulo2 obrigatório (LD1)
 10. DOS PEDIDOS
 11. Valor da causa (opcional)
 12. Fecho hardcoded
 13. Data
-14. Bloco de assinatura (copiado do template)
+14. Bloco de assinatura (copiado do template)  ← nome: "Almeida Marques Advocacia e Consultoria" (LD4)
 ```
 
 **PRELIMINARES** devem ser declaradas como primeira entrada de `secoes[]` no JSON de input. Se ausentes, o script as insere automaticamente com conteúdo mínimo (representação, endereço para intimações, procuração). Se presentes mas fora de posição, o script corrige silenciosamente e reporta.
 
 Conteúdo mínimo das PRELIMINARES: para ≤ 3 itens, parágrafos numerados. Para ≥ 4 itens, tabela de duas colunas (Item | Situação) com cabeçalho navy e zebra creme-claro.
+
+**Epígrafe** (opcional): usar apenas quando contém resumo da lide, questão de fato ou questão de direito que agrega informação não coberta pela caixa_processo. Identificação pura de processo e partes — dispensar, pois a caixa_processo já a cobre. (LD2)
 
 **Remissão probatória** — formato rígido em toda referência a documento:
 `(cf. **[nome completo do documento]**, doc. [N], [fl. X–Y] ou [p. X–Y do PDF])`
@@ -176,9 +176,22 @@ Distinção: `fl.` para paginação do juízo pós-juntada; `p. do PDF` para pag
 
 Fonte única: Cambria em todos os níveis. Ver tabela completa em `references/03-tipografia.md`.
 
-`firstLine`: todo parágrafo de corpo tem `firstLine=720` explícito via `c('indent.corpo_primeira_linha')`. Nunca herdar implicitamente do estilo Normal. Dentro de tabela ou caixa: `firstLine=0` obrigatório.
+**Herança do estilo Normal** (LD1): o template define o estilo Normal com `firstLine=709`, `jc=both`, `sz=24`. Parágrafos de corpo **não repetem** esses atributos no XML — herdam do Normal. O script deve emitir apenas `<w:spacing>` quando necessário. Hardcodar `firstLine`, `jc` ou `sz` em parágrafos de corpo sobrepõe o template e produz divergência visual.
 
-Proibições absolutas: sublinhado, travessão intercalador (—), bullets Unicode manuais (• ● ▪), cores fora da paleta §2. Negrito inline: máximo 2 ocorrências por página fora de títulos. Itálico: apenas termos estrangeiros, latinismos, títulos de obras.
+Exceções que exigem atributos explícitos: tabelas e células (`firstLine=0`, `jc` conforme coluna), endereçamento (`jc=center`, `sz=28`), citação recuada (`w:ind w:left=720`, `firstLine=0`), rodapé.
+
+**Estilos nativos obrigatórios** (LD1):
+- `Ttulo1` → nome da ação (item 5 do §4)
+- `Ttulo2` → títulos de seção numerados (I., II., III. etc.)
+- `Ttulo3` → subseções quando necessário
+- `PargrafodaLista` → toda enumeração de finalidades, fatos, dimensões jurídicas ou pedidos (LD3)
+- `Normal` → corpo corrido
+
+Nunca substituir esses estilos por formatação manual (bold + navy + sz=26 + jc=center). O estilo nativo carrega o espaçamento, a cor e a tipografia já calibrados no template.
+
+**Enumerações** (LD3): qualquer sequência de itens com marcador — seja `(a)/(b)/(c)`, seja `(1)/(2)/(3)` — usa `PargrafodaLista`. O marcador usa número arábico entre parênteses, não extenso ("(1)", não "primeiro"). Inline com ponto e vírgula é proibido quando há três ou mais itens.
+
+Proibições absolutas: sublinhado, travessão intercalador (—), bullets Unicode manuais (• ● ▪), cores fora da paleta §2. Negrito inline: máximo 2 ocorrências por página fora de títulos. Itálico: apenas termos estrangeiros, latinismos, títulos de obras, citações literais de documentos dos autos.
 
 ## §6 — Calibração
 
@@ -186,25 +199,32 @@ VERIFICAR VIGÊNCIA: SM 2026 = R$ 1.621,00. Teto RGPS e índices de correção: 
 
 VERIFICAR EXISTÊNCIA: `ASSETS/template_mod4.docx` acessível. `SCRIPTS/gerar_mod4.py` e `validar_mod4.py` presentes. `CONFIG/tipografia.json` carregável. Se ausente qualquer um, abortar com sinalização clara.
 
+VERIFICAR NOME DA FIRMA (LD4): o bloco de assinatura deve conter "Almeida Marques Advocacia e Consultoria". Se o template tiver "Sociedade Individual de Advocacia", corrigir no `ASSETS/template_mod4.docx` antes de qualquer geração — a correção pertence ao arquivo físico, não ao script.
+
+VERIFICAR ESTILO NORMAL NO TEMPLATE: confirmar que `template_mod4.docx` tem `firstLine=709` no estilo Normal antes de qualquer alteração tipográfica. Valor divergente exige atualização do template, não do script.
+
 DADO NECESSÁRIO: campos obrigatórios do schema + `data` para o bloco de assinatura. Sem `data`, o bloco de assinatura fica com `{{DATA}}` não substituído — reportar antes de gerar.
 
 VERIFICAR NO tipografia.json: nunca alterar valores tipográficos diretamente no script. Editar apenas `CONFIG/tipografia.json` e regenerar. Protocolo: (1) identificar impacto, (2) backup R3 do JSON, (3) editar, (4) gerar, (5) validar.
 
 ## §7 — Auto-verificação
 
-Última verificação de conformidade: 2026-05-11
-Próxima verificação: 2026-08-11
+Última verificação de conformidade: 2026-05-12
+Próxima verificação: 2026-08-12
 
 Checklist pós-geração:
 - [ ] `status == "PRONTO"` no output do validador
 - [ ] Cabeçalho VML visível em todas as páginas
 - [ ] Assinatura cursiva presente e posicionada sobre nome/OAB
+- [ ] Firma = "Almeida Marques Advocacia e Consultoria" (LD4)
 - [ ] Rodapé ausente na 1ª página; N/T da 2ª em diante
 - [ ] PRELIMINARES como primeira seção de mérito
-- [ ] Corpo com recuo `firstLine=720` visível
+- [ ] Títulos de seção com estilo Ttulo2 — nenhum bold/navy manual (LD1)
+- [ ] Parágrafos de corpo sem `firstLine`, `jc` ou `sz` hardcoded (LD1)
+- [ ] Enumerações com 3+ itens em PargrafodaLista, marcador numérico (LD3)
 - [ ] Nenhuma cor fora da paleta §2
 - [ ] Nenhum travessão intercalador, sublinhado ou bullet Unicode no corpo
-- [ ] Acentuação completa em todo o texto — verificar visualmente antes de entregar (L9)
+- [ ] Acentuação completa em todo o texto (ã, é, ç, ó, â, etc.) — abrir o DOCX e verificar visualmente antes de entregar
 
 Checklist de conformidade V4:
 - [x] Frontmatter completo (4 coordenadas + categoria + version + verificado_em)
@@ -215,7 +235,7 @@ Checklist de conformidade V4:
 - [x] Paleta consolidada em §2 sem caixas tipadas
 - [x] PRELIMINARES obrigatórias documentadas em §4
 - [x] Pipeline operacional em §3 com sequência numerada
-- [x] firstLine=720 explícito em §5
+- [x] Herança do Normal documentada em §5 (LD1)
 - [x] SM 2026 na Calibração §6
 - [x] references/ declaradas no frontmatter
 - [x] examples/ a gerar (3 positivos + 2 negativos)
@@ -237,45 +257,68 @@ L7 — Encadeamento condicional sob comando. Aplico: `chains_to` declarado; exec
 
 L8 — Skill ambiente-consciente. Aplico: script usa `CONFIG/tipografia.json` como fonte única; nenhum valor tipográfico hardcodado no SKILL.md ou no script.
 
-L9 — Python 3 é nativamente UTF-8, mas o JSON de input pode chegar corrompido ou com
-acentuação omitida por descuido. Aplico: (1) JSON de input deve sempre ter acentuação
-completa — nunca sanitizar removendo acentos; (2) o script carrega JSON com
-`json.load(f, encoding='utf-8')` explícito; (3) verificação visual obrigatória no
-checklist pós-geração antes de entregar via `present_files`.
+L9 — Python 3 é nativamente UTF-8. Aplico: nunca omitir acentos em strings por precaução. O script declara `# -*- coding: utf-8 -*-` e lê/grava tudo com `encoding='utf-8'` explícito. Strings sem acento no JSON de input produzem DOCX errado. O JSON de input deve sempre usar acentuação completa (ã, é, ç, ó, â, etc.). Verificação visual pós-geração é obrigatória — abrir o DOCX no Word antes de entregar.
 
----
+LD1 — Atributos de corpo herdados do Normal, nunca hardcodados. O estilo Normal do template define firstLine=709, jc=both, sz=24. Parágrafos de corpo que repetem esses valores no XML sobrepõem o template e produzem divergência visual quando o template for atualizado. O script deve emitir apenas `<w:spacing>` em parágrafos de corpo; os demais atributos são omitidos.
+**Por quê:** verificado empiricamente no MANDSEG v5 (12/05/2026): Normal tem firstLine=709 no styles.xml. O §5 anterior hardcodava 720 — valor divergente que sobrepunha o template.
+**Como aplicar:** em `gerar_mod4.py`, função `bpara()` emite apenas spacing; `run()` de corpo omite sz e color.
 
-## §9 — Pipeline pós-criação (instalação e sincronização)
+LD2 — Títulos de seção usam estilo nativo Ttulo2, nunca formatação manual. Bold+navy+sz+jc hardcoded em heading produz documento que quebrará visualmente se o template for atualizado. O estilo Ttulo2 já carrega espaçamento, cor e tipografia calibrados.
+**Por quê:** comparação entre peça gerada e peça editada pela Raquel (12/05/2026) revelou que todos os títulos de seção foram migrados para Ttulo2.
+**Como aplicar:** função `heading2()` usa `<w:pStyle w:val="Ttulo2"/>` sem nenhum atributo adicional; função `center_bold()` não deve ser usada para seções.
 
-Após gerar o `.docx`, o pipeline de entrega varia conforme o ambiente:
+LD3 — Enumerações de três ou mais itens usam PargrafodaLista com marcador numérico entre parênteses. Inline com ponto e vírgula impede leitura rápida e não reflete a estrutura lógica da enumeração. Marcador extenso ("primeiro", "segundo") é redundante quando o número já ordena.
+**Por quê:** revisão da Raquel (12/05/2026) converteu todos os blocos "primeiro/segundo/terceiro/quarto" e "(a)/(b)/(c)" em PargrafodaLista com "(1)/(2)/(3)".
+**Como aplicar:** função `list_para()` usa `<w:pStyle w:val="PargrafodaLista"/>`. Schema: novo tipo `{"tipo": "lista", "items": [...]}`.
 
-### Via Cowork (automático se `git_auto_commit: true`)
+LD4 — Nome comercial da firma é "Almeida Marques Advocacia e Consultoria". "Sociedade Individual de Advocacia" é a razão social formal; o nome comercial abreviado é o padrão em assinaturas e qualificações.
+**Por quê:** revisão da Raquel (12/05/2026) corrigiu a assinatura de "Sociedade Individual de Advocacia" para "Advocacia e Consultoria".
+**Como aplicar:** verificar no `template_mod4.docx`; se divergente, corrigir o template. A constante no script deve ser `"Almeida Marques Advocacia e Consultoria"`.
+
+## §9 — Pipeline pós-criação (sincronização Git)
+
+Aplica-se a toda geração de `.skill` ou modificação de SKILL.md, tanto na interface web quanto no Cowork. Garante que web, Cowork e GitHub estejam sempre sincronizados.
+
+### No Cowork (automático após empacotamento)
 
 ```powershell
-# 1. Backup R3 da versão anterior
+# 1. Backup R3 da versão anterior (se existir)
+$skill = "mod4"
 $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-$bk = "C:\RaquelSkills\_backups\mod4"
+$bk = "C:\RaquelSkills\_backups\$skill"
 New-Item -ItemType Directory -Force -Path $bk | Out-Null
-Copy-Item "C:\RaquelSkills\skills\mod4\SKILL.md" "$bk\SKILL-$ts.md" -ErrorAction SilentlyContinue
+Copy-Item "C:\RaquelSkills\skills\$skill\SKILL.md" "$bk\SKILL-$ts.md" -ErrorAction SilentlyContinue
 
-# 2. Commit e push
+# 2. Extrair .skill para o repositório
+Expand-Archive -Path "$env:USERPROFILE\Downloads\$skill.skill" `
+               -DestinationPath "C:\RaquelSkills\skills\" -Force
+
+# 3. Commit com mensagem canônica
 cd C:\RaquelSkills
-git add skills/mod4/
-git commit -m "feat(mod4): v<versão> — <resumo>"
+git add "skills/$skill/"
+git commit -m "feat(mod4): v4.2.0 — LD1 herança Normal, LD2 Ttulo2, LD3 PargrafodaLista, LD4 firma"
+
+# 4. Publicar
 git push
 ```
 
-### Via interface web (download manual)
+### Na interface web (manual após download)
 
-1. Baixar o `.skill` entregue via `present_files`
-2. Extrair em `C:\RaquelSkills\skills\mod4\` (substituir SKILL.md e references/)
-3. Rodar o bloco PowerShell acima a partir do passo 2
+O `.skill` gerado aqui não acessa o Git diretamente. Fluxo:
+
+```
+1. Baixar o .skill via present_files
+2. Executar o bloco PowerShell acima no terminal Windows
+3. Confirmar hash do commit no terminal
+```
 
 ### Verificação de sincronização
 
-Após o push, confirmar:
-- `C:\RaquelSkills\skills\mod4\SKILL.md` — fonte canônica ✓
-- GitHub remoto — `git log --oneline -3` deve mostrar o commit ✓
-- Cowork — recarregar plugin para carregar nova versão ✓
+Após o push, confirmar que os três ambientes estão alinhados:
 
-Mensagem de commit canônica: `feat(<nome>): v<versão> — <resumo-em-uma-linha>`
+```powershell
+cd C:\RaquelSkills
+git log --oneline -5        # ver commits locais
+git status                  # sem arquivos staged ou modified
+git push                    # sem "ahead of origin" — se houver, rodar push
+```
