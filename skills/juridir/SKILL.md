@@ -1,16 +1,22 @@
 ---
-title: juridir
+name: juridir
 description: "Organiza pastas jurídicas brasileiras de forma autonarrativa: lê, converte para PDF, comprime, nomeia TIPO-SUJEITO-DATA, agrupa imagens de conjunto em PDF único, preserva tudo em _APAGAR antes de qualquer alteração. A skill decide sozinha; não devolve pendência."
-version: 2.0.0
-category: capability
-núcleo: TBD
+project: Proj02
+nucleo: N5
 frente: transversal
-camada: C1
-projeto: TBD
-author: Raquel de Almeida Marques
-verified_in: 2026-05-11
+camada: C2
+categoria: capability
+justificativa: Organiza pastas físicas de clientes produzindo estrutura navegável e RESUMO.DOCX; não é preference porque modifica arquivos no disco e entrega artefato concreto
+version: 2.0.0
+verificado_em: 2026-05-11
 git_repo: C:\RaquelSkills
 git_auto_commit: false
+depends_on: []
+chains_to: []
+licoes_aplicadas:
+  - L1, L2, L3, L5
+regras_aplicaveis:
+  - R1, R2, R3, R6, R10, R11
 ---
 
 # juridir — Organização de Pasta Jurídica

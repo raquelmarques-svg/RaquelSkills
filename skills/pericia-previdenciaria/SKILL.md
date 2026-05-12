@@ -1,16 +1,23 @@
 ---
-title: pericia-previdenciaria
+name: pericia-previdenciaria
 description: "Perícia médica previdenciária — ciclo completo: quesitação, análise de laudo, vícios processuais, impugnação, art. 151, período de graça, BPC/LOAS, manifestação nos 5 dias, estratégia retórica."
+project: Proj02
+nucleo: N1
+frente: previdenciaria
+camada: C5
+categoria: capability
+justificativa: Produz peças processuais concretas (quesitos, impugnação, manifestação) em ações previdenciárias; não é preference porque gera output acionável com estrutura jurídica
 version: 2.0.0
-category: capability
-núcleo: TBD
-frente: TBD
-camada: TBD
-projeto: TBD
-author: Raquel de Almeida Marques
-verified_in: 2026-05-11
+verificado_em: 2026-05-11
 git_repo: C:\RaquelSkills
 git_auto_commit: false
+depends_on: []
+chains_to:
+  - mod4
+licoes_aplicadas:
+  - L1, L2, L3, L5, L6, L10, L11
+regras_aplicaveis:
+  - R1, R2, R3, R6, R10, R11
 ---
 
 # pericia-previdenciaria — Perícia Médica Previdenciária
