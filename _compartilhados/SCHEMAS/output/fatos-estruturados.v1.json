@@ -1,0 +1,299 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raquelskills/schemas/output/fatos-estruturados.v1.json",
+  "produced_by": [
+    "levanta-fatos"
+  ],
+  "consumed_by": [
+    "replica",
+    "pericia-acidentaria",
+    "pericia-previdenciaria",
+    "dossie-caso"
+  ],
+  "title": "fatos-estruturados",
+  "version": "1.0.0",
+  "description": "Contrato de output da skill levanta-fatos. Define o conjunto minimo de fatos estruturados que skills downstream (replica, pericia-acidentaria, pericia-previdenciaria, dossie-caso) consomem como input.",
+  "type": "object",
+  "required": [
+    "processo",
+    "partes",
+    "empregador_ou_inss",
+    "beneficios",
+    "cid_principal",
+    "documentos_presentes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "processo": {
+      "type": "object",
+      "description": "Identificacao processual",
+      "required": [
+        "numero"
+      ],
+      "properties": {
+        "numero": {
+          "type": "string",
+          "description": "Numero CNJ do processo (NNNNNNN-DD.AAAA.J.TT.OOOO)",
+          "example": "0001234-55.2025.8.26.0100"
+        },
+        "vara": {
+          "type": "string",
+          "example": "2a Vara Acidentaria de Sao Paulo"
+        },
+        "comarca": {
+          "type": "string",
+          "example": "Sao Paulo"
+        },
+        "uf": {
+          "type": "string",
+          "enum": [
+            "AC",
+            "AL",
+            "AM",
+            "AP",
+            "BA",
+            "CE",
+            "DF",
+            "ES",
+            "GO",
+            "MA",
+            "MG",
+            "MS",
+            "MT",
+            "PA",
+            "PB",
+            "PE",
+            "PI",
+            "PR",
+            "RJ",
+            "RN",
+            "RO",
+            "RR",
+            "RS",
+            "SC",
+            "SE",
+            "SP",
+            "TO"
+          ]
+        }
+      }
+    },
+    "partes": {
+      "type": "object",
+      "required": [
+        "autor"
+      ],
+      "properties": {
+        "autor": {
+          "type": "object",
+          "required": [
+            "nome"
+          ],
+          "properties": {
+            "nome": {
+              "type": "string",
+              "example": "Maria da Silva"
+            },
+            "cpf": {
+              "type": "string",
+              "pattern": "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$",
+              "example": "123.456.789-00"
+            },
+            "data_nascimento": {
+              "type": "string",
+              "format": "date",
+              "example": "1975-04-12"
+            },
+            "nit_pis": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        },
+        "reu": {
+          "type": "string",
+          "description": "Nome do reu (INSS ou empregador conforme tipo de acao)",
+          "example": "Instituto Nacional do Seguro Social"
+        }
+      }
+    },
+    "empregador_ou_inss": {
+      "type": "object",
+      "description": "Dados do empregador (acidentaria/trabalhista) ou da autarquia (previdenciaria). Obrigatorio para acidentaria; opcional para previdenciaria pura.",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "example": "Metalurgica ABC Ltda"
+        },
+        "cnpj": {
+          "type": "string",
+          "example": "12.345.678/0001-90"
+        },
+        "cnae_principal": {
+          "type": "string",
+          "description": "Codigo CNAE de 7 digitos sem formatacao",
+          "pattern": "^\\d{7}$",
+          "example": "2910701"
+        },
+        "cnae_descricao": {
+          "type": "string",
+          "example": "Fabricacao de automoveis, camionetas e utilitarios"
+        }
+      }
+    },
+    "beneficios": {
+      "type": "array",
+      "description": "Lista de todos os NBs (beneficios previdenciarios) do caso",
+      "items": {
+        "type": "object",
+        "required": [
+          "nb",
+          "especie_codigo"
+        ],
+        "properties": {
+          "nb": {
+            "type": "string",
+            "example": "123.456.789-0"
+          },
+          "especie_codigo": {
+            "type": "string",
+            "description": "Codigo de especie (ex: B31, B91, B87, B94, B92, B41, B45)",
+            "example": "B91"
+          },
+          "especie_descricao": {
+            "type": "string",
+            "example": "Auxilio por Incapacidade Temporaria Acidentario"
+          },
+          "did": {
+            "type": "string",
+            "format": "date",
+            "description": "Data de Inicio da Doenca"
+          },
+          "dii": {
+            "type": "string",
+            "format": "date",
+            "description": "Data de Inicio da Incapacidade"
+          },
+          "dib": {
+            "type": "string",
+            "format": "date",
+            "description": "Data de Inicio do Beneficio"
+          },
+          "dcb": {
+            "type": "string",
+            "format": "date",
+            "description": "Data de Cessacao do Beneficio"
+          },
+          "rmi": {
+            "type": "number",
+            "description": "Renda Mensal Inicial em reais",
+            "example": 1621.0
+          }
+        }
+      }
+    },
+    "cid_principal": {
+      "type": "string",
+      "description": "CID-10 principal do caso (letra + numeros)",
+      "pattern": "^[A-Z]\\d{2}(\\.\\d)?$",
+      "example": "M54.5"
+    },
+    "cid_secundarios": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z]\\d{2}(\\.\\d)?$"
+      },
+      "example": [
+        "M51.1",
+        "G54.4"
+      ]
+    },
+    "periodos_trabalhados": {
+      "type": "array",
+      "description": "Historico de vinculos empregaticos relevantes ao nexo",
+      "items": {
+        "type": "object",
+        "required": [
+          "inicio",
+          "funcao"
+        ],
+        "properties": {
+          "inicio": {
+            "type": "string",
+            "format": "date"
+          },
+          "fim": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "null se vinculo atual"
+          },
+          "funcao": {
+            "type": "string",
+            "example": "Operador de maquinas pesadas"
+          },
+          "empregador": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "documentos_presentes": {
+      "type": "array",
+      "description": "Lista de documentos efetivamente juntados no processo",
+      "items": {
+        "type": "string",
+        "enum": [
+          "CTPS",
+          "CNIS",
+          "CAT",
+          "PPP",
+          "LTCAT",
+          "PCMSO",
+          "PPRA",
+          "laudo_pericial_INSS",
+          "laudo_medico_particular",
+          "exames_imagem",
+          "prontuario",
+          "receituario",
+          "atestados",
+          "historico_salarial",
+          "processo_administrativo_INSS",
+          "carta_demissao",
+          "termo_rescisao",
+          "declaracao_empregador",
+          "outros"
+        ]
+      },
+      "example": [
+        "CTPS",
+        "CNIS",
+        "CAT",
+        "exames_imagem"
+      ]
+    },
+    "lacunas_documentais": {
+      "type": "array",
+      "description": "Documentos ausentes que enfraquecem a tese ou que devem ser obtidos",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "PPP",
+        "LTCAT"
+      ]
+    },
+    "ntep_aplicavel": {
+      "type": "boolean",
+      "description": "Indica se o par CNAE x CID consta da Lista A (Decreto 3.048 Anexo II). null quando nao verificado.",
+      "example": true
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Fatos relevantes nao cobertos pelos campos estruturados acima"
+    }
+  }
+}

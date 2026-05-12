@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raquelskills/schemas/input/status-pre-mod4.v1.json",
+  "produced_by": [
+    "replica",
+    "pericia-acidentaria",
+    "pericia-previdenciaria",
+    "artigo-juridico"
+  ],
+  "consumed_by": [
+    "mod4"
+  ],
+  "title": "status-pre-mod4",
+  "version": "1.0.0",
+  "description": "Contrato de input da skill mod4. Define o conjunto de metadados e conteudo que qualquer skill upstream (replica, pericia-acidentaria, pericia-previdenciaria, artigo-juridico) deve entregar antes de acionar mod4 para formatacao DOCX corporativa.",
+  "type": "object",
+  "required": [
+    "tipo_documento",
+    "processo",
+    "partes",
+    "corpo_texto"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "tipo_documento": {
+      "type": "string",
+      "enum": [
+        "peticao-inicial",
+        "replica",
+        "manifestacao-laudo",
+        "impugnacao-laudo",
+        "recurso-ordinario",
+        "agravo",
+        "embargos-declaracao",
+        "manifestacao-generica",
+        "artigo-juridico",
+        "memoriais",
+        "outros"
+      ],
+      "description": "Tipo do documento que mod4 deve formatar. Determina o template e a estrutura de secoes obrigatoria.",
+      "example": "replica"
+    },
+    "processo": {
+      "type": "object",
+      "required": [
+        "numero"
+      ],
+      "properties": {
+        "numero": {
+          "type": "string",
+          "description": "Numero CNJ completo",
+          "example": "0001234-55.2025.8.26.0100"
+        },
+        "vara": {
+          "type": "string",
+          "example": "2a Vara Acidentaria de Sao Paulo"
+        },
+        "comarca": {
+          "type": "string",
+          "example": "Sao Paulo"
+        },
+        "uf": {
+          "type": "string",
+          "example": "SP"
+        },
+        "tipo_justica": {
+          "type": "string",
+          "enum": [
+            "estadual",
+            "federal",
+            "trabalhista"
+          ],
+          "example": "estadual"
+        }
+      }
+    },
+    "partes": {
+      "type": "object",
+      "required": [
+        "autor",
+        "reu"
+      ],
+      "properties": {
+        "autor": {
+          "type": "object",
+          "required": [
+            "nome"
+          ],
+          "properties": {
+            "nome": {
+              "type": "string",
+              "example": "Maria da Silva"
+            },
+            "qualificacao": {
+              "type": "string",
+              "description": "Qualificacao completa para cabecalho (estado civil, profissao, CPF, endereco)",
+              "example": "brasileira, casada, operaria, portadora do CPF 123.456.789-00, residente e domiciliada na Rua das Flores, 100, Sao Paulo/SP"
+            }
+          }
+        },
+        "reu": {
+          "type": "object",
+          "required": [
+            "nome"
+          ],
+          "properties": {
+            "nome": {
+              "type": "string",
+              "example": "Instituto Nacional do Seguro Social - INSS"
+            },
+            "qualificacao": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "advogado": {
+      "type": "object",
+      "description": "Dados do advogado signatario. Se omitido, mod4 usa os dados padrao do escritorio.",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "example": "Raquel de Almeida Marques"
+        },
+        "oab": {
+          "type": "string",
+          "example": "OAB/SP 123.456"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      }
+    },
+    "corpo_texto": {
+      "type": "string",
+      "description": "Texto completo da peca em Markdown. Titulos de secao como ## (H2), subsecoes como ### (H3). Sem formatacao DOCX inline. mod4 faz a conversao.",
+      "minLength": 100
+    },
+    "pedidos": {
+      "type": "array",
+      "description": "Lista de pedidos finais numerados para secao DOS PEDIDOS. Se incluidos aqui, nao devem ser duplicados no corpo_texto.",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "Retificacao da especie do NB 123.456.789-0 de B31 para B91 desde a DIB original",
+        "Concessao do auxilio-acidente B94 apos a cessacao do B91",
+        "Depositos de FGTS pelo periodo de afastamento"
+      ]
+    },
+    "honorarios": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Dados de honorarios para insercao automatica na clausula de honorarios. null omite a clausula.",
+      "properties": {
+        "percentual": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30,
+          "example": 15
+        },
+        "base_calculo": {
+          "type": "string",
+          "enum": [
+            "condenacao",
+            "proveito_economico",
+            "valor_causa"
+          ],
+          "example": "condenacao"
+        }
+      }
+    },
+    "data_protocolizacao": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date",
+      "description": "Data prevista de protocolo. Usada no cabecalho. null = data de hoje.",
+      "example": "2026-05-15"
+    },
+    "observacoes_formatacao": {
+      "type": "string",
+      "description": "Instrucoes especificas de formatacao para mod4 (ex: adicionar quadro de contato, incluir tabela X na secao Y)"
+    }
+  }
+}

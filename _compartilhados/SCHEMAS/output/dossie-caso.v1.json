@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raquelskills/schemas/output/dossie-caso.v1.json",
+  "produced_by": [
+    "dossie-caso"
+  ],
+  "consumed_by": [
+    "levanta-fatos",
+    "replica",
+    "pericia-acidentaria",
+    "pericia-previdenciaria",
+    "artigo-juridico"
+  ],
+  "title": "dossie-caso",
+  "version": "1.0.0",
+  "description": "Contrato de output da skill dossie-caso. Define o dossie estruturado de um caso que alimenta skills de producao de pecas (replica, pericia-acidentaria, artigo-juridico) e a skill levanta-fatos.",
+  "type": "object",
+  "required": [
+    "identificacao",
+    "resumo_fatos",
+    "teses_principais",
+    "status_atual"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "identificacao": {
+      "type": "object",
+      "required": [
+        "nome_cliente",
+        "processo_numero"
+      ],
+      "properties": {
+        "nome_cliente": {
+          "type": "string",
+          "example": "Maria da Silva"
+        },
+        "cpf": {
+          "type": "string",
+          "pattern": "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$"
+        },
+        "processo_numero": {
+          "type": "string",
+          "example": "0001234-55.2025.8.26.0100"
+        },
+        "tipo_acao": {
+          "type": "string",
+          "enum": [
+            "acidentaria",
+            "previdenciaria",
+            "trabalhista",
+            "bpc-loas",
+            "nt3",
+            "outros"
+          ],
+          "example": "acidentaria"
+        },
+        "fase_atual": {
+          "type": "string",
+          "enum": [
+            "pre-distribuicao",
+            "instrucao",
+            "pericia-designada",
+            "pos-laudo",
+            "sentenca",
+            "recurso",
+            "execucao",
+            "encerrado"
+          ],
+          "example": "pos-laudo"
+        }
+      }
+    },
+    "resumo_fatos": {
+      "type": "string",
+      "description": "Narrativa factual sintetica: quem e o cliente, qual o dano, qual o historico laboral relevante, o que o INSS/reu fez. Max 500 palavras.",
+      "minLength": 50,
+      "maxLength": 3000
+    },
+    "cronologia": {
+      "type": "array",
+      "description": "Linha do tempo de eventos relevantes, ordenada por data crescente",
+      "items": {
+        "type": "object",
+        "required": [
+          "data",
+          "evento"
+        ],
+        "properties": {
+          "data": {
+            "type": "string",
+            "format": "date"
+          },
+          "evento": {
+            "type": "string",
+            "example": "Acidente de trabalho com fratura L3-L4"
+          },
+          "documento_referencia": {
+            "type": "string",
+            "description": "Nome ou tipo do documento que registra o evento",
+            "example": "CAT emitida pelo empregador"
+          }
+        }
+      }
+    },
+    "teses_principais": {
+      "type": "array",
+      "description": "Teses juridicas que sustentam a acao. Cada item: norma + fato + conclusao em uma frase.",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "example": [
+        "NTEP nao afastado: CNAE 2910701 x CID M54.5 constam da Lista A e laudo pericial e Tipo B, insuficiente para afastar a presuncao (art. 21-A Lei 8.213/91)",
+        "Vicio de especie: NB concedido como B31 quando caberia B91, gerando diferenca de RMI desde a DIB"
+      ]
+    },
+    "provas_disponiveis": {
+      "type": "array",
+      "description": "Provas ja juntadas ou em poder do escritorio, relevantes para as teses",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "CAT com CID M54.5",
+        "CNIS confirmando vinculo no CNAE 2910701",
+        "Laudo do neurologista Dr. Jose Alves"
+      ]
+    },
+    "lacunas": {
+      "type": "array",
+      "description": "Provas ausentes que enfraquecem as teses ou que devem ser requeridas",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "PPP do empregador nao juntado",
+        "Pericia ergonomica nao realizada"
+      ]
+    },
+    "riscos": {
+      "type": "array",
+      "description": "Riscos juridicos ou probatorios identificados",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "Laudo pericial pode ser desfavoravel se perito nao aplicar NTEP",
+        "Prescricao de diferencas anteriores a 5 anos"
+      ]
+    },
+    "status_atual": {
+      "type": "string",
+      "description": "Descricao do estado atual do processo e da demanda imediata do escritorio",
+      "example": "Laudo pericial desfavoravel recebido. Prazo de 15 dias para manifestacao. Necessario impugnar e requerer nova pericia."
+    },
+    "proxima_acao": {
+      "type": "string",
+      "description": "Proxima providencia concreta a ser tomada pelo escritorio",
+      "example": "Redigir manifestacao ao laudo com impugnacao e pedido de nova pericia (art. 480 CPC)"
+    },
+    "skill_recomendada": {
+      "type": "string",
+      "description": "Skill que deve ser acionada para a proxima acao",
+      "enum": [
+        "replica",
+        "pericia-acidentaria",
+        "pericia-previdenciaria",
+        "artigo-juridico",
+        "analise-precedente",
+        "mod4",
+        "outros"
+      ],
+      "example": "pericia-acidentaria"
+    }
+  }
+}

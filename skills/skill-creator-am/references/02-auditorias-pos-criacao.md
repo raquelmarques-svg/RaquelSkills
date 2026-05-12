@@ -350,12 +350,131 @@ Resposta:
 
 ---
 
-## Checklist operacional atualizado (A1-A16)
+## Auditoria 17 — git_auto_commit honesto
+
+Critério: campo `git_auto_commit` somente é `true` quando há pipeline real de commit automatizado
+comprovado (script em scripts/ que executa git commit + push sem intervenção manual).
+
+Procedimento:
+1. Verificar valor de `git_auto_commit` no frontmatter
+2. Se `true`, verificar se existe script em scripts/ que chama git commit e git push
+3. Se `true` sem script: falha — campo declara promessa não implementada
+
+Resposta:
+- `git_auto_commit: false` ou `git_auto_commit` ausente: verde (declaração honesta)
+- `git_auto_commit: true` com script de commit funcional: verde
+- `git_auto_commit: true` sem script: vermelho (bloqueio — declaração falsa em contrato)
+
+Correção padrão: alterar para `git_auto_commit: false` e registrar em `licoes_aplicadas: L11`.
+
+---
+
+## Auditoria 18 — chains_to com skill instalada e schema declarado
+
+Extensão de A11. Critério: toda skill listada em `chains_to` (a) existe na biblioteca E (b) tem
+contrato de interface (schema de input em _compartilhados/SCHEMAS/ ou em sua própria SCHEMAS/).
+
+Procedimento:
+1. Para cada skill em `chains_to`:
+   a. Verificar se existe em `C:\RaquelSkills\skills\[nome]\SKILL.md`
+   b. Verificar se existe schema de input em:
+      - `C:\RaquelSkills\_compartilhados\SCHEMAS\input\[nome]*.json` OU
+      - `C:\RaquelSkills\skills\[nome]\SCHEMAS\*.json`
+2. Para skill inexistente: bloqueio (A11 já detecta; A18 adiciona o contrato)
+3. Para skill existente sem schema: alerta vermelho — promessa verbal não-contratual
+
+Resposta:
+- Todas presentes + todas com schema: verde
+- Skill presente, schema ausente: vermelho (chains_to sem contrato é promessa verbal)
+- Skill ausente: vermelho (bloqueio — A11)
+
+Nota: skill em chains_to marcada como "ainda não instalada" pode ser declarada com prefixo
+`[pendente]` no frontmatter para distinguir promessa futura de dependência ativa.
+
+---
+
+## Auditoria 19 — depends_on declara ASSETS/ como dependências explícitas
+
+Critério: toda referência a arquivo em `ASSETS/` no corpo do SKILL.md deve estar listada em
+`depends_on` do frontmatter, para que auditoria A11 possa verificar existência.
+
+Procedimento:
+```python
+import re, yaml
+from pathlib import Path
+
+def auditar_assets_em_depends(skill_path):
+    p = Path(skill_path)
+    texto = (p / 'SKILL.md').read_text(encoding='utf-8')
+    fm = yaml.safe_load(texto.split('---')[1])
+    refs_assets = re.findall(r'ASSETS/[\w\-\.]+', texto)
+    depends_on = fm.get('depends_on', [])
+    ausentes = [r for r in set(refs_assets) if r not in depends_on]
+    return ausentes
+```
+
+Resposta:
+- 0 ASSETS não declarados: verde
+- 1+ ASSETS referenciados mas ausentes de depends_on: amarelo (não bloqueante, mas
+  significa que A11 não consegue verificar existência das dependências reais)
+
+---
+
+## Auditoria 20 — git_repo usa caminho correto para o ambiente de execução
+
+Critério: campo `git_repo` no frontmatter usa caminho Windows (`C:\RaquelSkills`) para skills
+executadas via Cowork/PowerShell; skills que executam apenas via bash Linux devem usar o caminho
+de mount (`/sessions/.../mnt/RaquelSkills/`). Paths hardcoded que funcionam em apenas um
+ambiente sem declaração explícita são falha de L16.
+
+Procedimento:
+1. Verificar valor de `git_repo`
+2. Se contém `C:\`: verificar se a skill usa scripts PS5/PS7 (compatível)
+3. Se contém `/sessions/`: verificar se a skill usa apenas bash (compatível)
+4. Se contém nenhum dos dois: alerta amarelo
+
+Resposta:
+- Path Windows + skill Cowork-only: verde
+- Path Linux + skill bash-only: verde
+- Path Windows + skill bash-only sem conversão: amarelo (scripts falharão em ambiente Linux)
+- Path ausente: amarelo (default para C:\RaquelSkills, documentar como convenção)
+
+Correção padrão quando há ambiguidade: declarar `git_repo_windows` e `git_repo_linux`
+separadamente, ou usar `resolver_output_root.py` para detecção automática.
+
+---
+
+## Auditoria 21 — categoria correta: capability vs. reference
+
+Critério: skill com `categoria: capability` deve produzir output acionável por agente externo
+(texto jurídico, análise estruturada, arquivo). Skill que apenas fornece vocabulário, regras ou
+padrões para consumo interno de outras skills deve ser `categoria: reference` e residir em
+`_compartilhados/references/`, não em `skills/`.
+
+Procedimento:
+1. Verificar campo `categoria`
+2. Se `capability`: verificar se §1 FAÇO contém pelo menos um item que produz output externo
+   (texto, arquivo, análise, formulário, decisão)
+3. Se FAÇO contém apenas "fornece vocabulário", "define padrões", "orienta redação" sem
+   produção de output: categoria incorreta → reclassificar como `reference`
+
+Exemplos de classificação incorreta detectada:
+- `padrao-redacional` como skill (fornece só padrões) → deve ser reference em _compartilhados/
+- `vocabulario-controlado` como skill → deve ser reference em _compartilhados/
+
+Resposta:
+- capability com output externo documentado: verde
+- capability sem output externo identificável: vermelho (reclassificar + mover para _compartilhados/)
+- reference como skill em skills/: vermelho (mover para _compartilhados/references/)
+
+---
+
+## Checklist operacional atualizado (A1-A21)
 
 ```
 [ ] A1:  Tamanho ≤ 500 linhas
 [ ] A2:  Frontmatter completo
-[ ] A3:  Lições L1-L13 aplicáveis incorporadas
+[ ] A3:  Lições L1-L18 aplicáveis incorporadas
 [ ] A4:  Cláusulas R1-R11 aplicáveis presentes
 [ ] A5:  Descrição diretiva
 [ ] A6:  Pragmática (5 testes)
@@ -363,11 +482,23 @@ Resposta:
 [ ] A8:  Vocabulário canônico
 [ ] A9:  5 casos-teste em examples/
 [ ] A10: Duplicação < 10 linhas
-[ ] A11: Dependências consistentes
+[ ] A11: Dependências consistentes (chains_to + depends_on)
 [ ] A12: verificado_em ≤ 90 dias
 [ ] A13: Artefatos completos (MODELOS/ASSETS/SCHEMAS/)
 [ ] A14: tests/ quando scripts/ existe
 [ ] A15: ITIL/COBIT compliance (IC-1 a IC-8)
 [ ] A16: Contratos de interface (CT-1 a CT-7)
+[ ] A17: git_auto_commit honesto (true só com pipeline real)
+[ ] A18: chains_to com skill instalada E schema declarado
+[ ] A19: depends_on declara ASSETS/ referenciados
+[ ] A20: git_repo com caminho correto para o ambiente
+[ ] A21: categoria capability vs. reference correta
 ```
+
+Bloqueantes (impedem aprovação da skill): A1 vermelho, A2 (campo obrigatório ausente),
+A9 (< 5 casos), A11 (skill inexistente), A16 CT-1/CT-2 ausentes, A17 vermelho, A18 vermelho,
+A21 vermelho.
+
+Não-bloqueantes (registrar e corrigir na próxima auditoria R9): A3, A4, A6, A7, A8, A12,
+A13 amarelo, A14, A19, A20.
 

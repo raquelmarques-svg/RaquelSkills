@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raquelskills/schemas/output/analise-pericial.v1.json",
+  "produced_by": [
+    "pericia-acidentaria",
+    "pericia-previdenciaria"
+  ],
+  "consumed_by": [
+    "replica",
+    "mod4"
+  ],
+  "title": "analise-pericial",
+  "version": "1.0.0",
+  "description": "Contrato de output das skills pericia-acidentaria e pericia-previdenciaria. Define o resultado estruturado da analise de laudo pericial que alimenta replica e mod4.",
+  "type": "object",
+  "required": [
+    "tipo_laudo",
+    "pergunta_respondida",
+    "ntep_afastado",
+    "concausa_implicita",
+    "recomendacao"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "tipo_laudo": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ],
+      "description": "Classificacao metodologica: A=responde presuncao NTEP / B=nexo clinico direto / C=incapacidade atual",
+      "example": "B"
+    },
+    "pergunta_respondida": {
+      "type": "string",
+      "description": "Descricao da pergunta que o perito efetivamente respondeu (pode divergir da pergunta legal exigida)",
+      "example": "O segurado tem capacidade laborativa atual?"
+    },
+    "pergunta_legal_exigida": {
+      "type": "string",
+      "description": "Pergunta que a lei impos ao perito (art. 21-A Lei 8.213/91 para acidentario)",
+      "example": "As condicoes laborativas concretas no CNAE indicado nao contribuiram nem como concausa para o CID indicado?"
+    },
+    "ntep_afastado": {
+      "type": "boolean",
+      "description": "O laudo afastou a presuncao do NTEP com fundamentacao suficiente? false = presuncao integra.",
+      "example": false
+    },
+    "fundamentacao_afastamento": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Transcricao ou resumo do argumento do perito para afastar o NTEP. null se nao afastou.",
+      "example": null
+    },
+    "concausa_implicita": {
+      "type": "boolean",
+      "description": "O laudo contem expressoes que admitem contribuicao do trabalho (concausa), mesmo que a conclusao final negue o nexo?",
+      "example": true
+    },
+    "expressoes_concausa": {
+      "type": "array",
+      "description": "Transcricoes literais das expressoes que admitem concausa. Obrigatorio quando concausa_implicita=true.",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "as atividades laborativas podem intensificar os sintomas",
+        "carga mecanica sobre articulacoes ja acometidas"
+      ]
+    },
+    "contradicoes": {
+      "type": "array",
+      "description": "Contradições internas: achados clinicos incompativeis com a conclusao",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "Perito descreve L4-L5 comprimindo raiz nervosa mas conclui por ausencia de nexo funcional"
+      ]
+    },
+    "ausencias_metodologicas": {
+      "type": "array",
+      "description": "Elementos metodologicos ausentes que comprometem a suficiencia do laudo",
+      "items": {
+        "type": "string",
+        "enum": [
+          "anamnese_ocupacional",
+          "visita_local_trabalho",
+          "analise_cnae_x_cid",
+          "analise_epidemiologica",
+          "consulta_ppra_pcmso",
+          "consulta_ppp",
+          "entrevista_com_testemunhas",
+          "exames_complementares_adequados"
+        ]
+      },
+      "example": [
+        "anamnese_ocupacional",
+        "analise_cnae_x_cid"
+      ]
+    },
+    "conclusao_pericia": {
+      "type": "string",
+      "description": "Conclusao literal ou sintetica do perito",
+      "example": "Nao ha nexo causal entre a doenca e o trabalho exercido."
+    },
+    "recomendacao": {
+      "type": "string",
+      "enum": [
+        "impugnar",
+        "aceitar",
+        "complementar",
+        "nova-pericia"
+      ],
+      "description": "Recomendacao estrategica: impugnar=laudo insuficiente ou contradito / aceitar=laudo favoravel / complementar=quesitos adicionais / nova-pericia=art. 480 CPC",
+      "example": "impugnar"
+    },
+    "fundamento_recomendacao": {
+      "type": "string",
+      "description": "Argumento principal que justifica a recomendacao",
+      "example": "Laudo Tipo B nao responde a pergunta do NTEP; concausa admitida implicitamente em dois trechos."
+    },
+    "quesitos_complementares": {
+      "type": "array",
+      "description": "Lista de quesitos numerados para manifestacao ou impugnacao. Obrigatorio quando recomendacao=impugnar ou complementar.",
+      "items": {
+        "type": "object",
+        "required": [
+          "numero",
+          "texto"
+        ],
+        "properties": {
+          "numero": {
+            "type": "integer",
+            "example": 1
+          },
+          "bloco": {
+            "type": "string",
+            "enum": [
+              "A_identificacao",
+              "B_metodologia",
+              "C_ntep",
+              "D_concausa",
+              "E_incapacidade",
+              "F_fechamento"
+            ],
+            "example": "C_ntep"
+          },
+          "texto": {
+            "type": "string",
+            "example": "O senhor perito analisou as condicoes ergonomicas especificas da funcao de operador de maquinas descrita no PPP?"
+          }
+        }
+      }
+    },
+    "fundamento_nova_pericia": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Argumento para pedido de nova pericia via art. 480 CPC. null se recomendacao != nova-pericia.",
+      "example": null
+    },
+    "especialidade_perito_recomendada": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Especialidade que o novo perito deve ter. Relevante para pedido art. 480.",
+      "example": "ortopedia e traumatologia com experiencia em medicina do trabalho"
+    }
+  }
+}

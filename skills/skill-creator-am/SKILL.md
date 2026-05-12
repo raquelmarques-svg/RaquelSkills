@@ -29,11 +29,11 @@ recursos_compartilhados:
   templates:
     - template-skill-canonico
 licoes_aplicadas:
-  - L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, LM1, LM2
+  - L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, LM1, LM2
 regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
-verificado_em: 2026-05-11
-version: 1.5.0
+verificado_em: 2026-05-12
+version: 1.6.0
 ---
 
 # skill-creator-am — Criador de skills da biblioteca Almeida Marques
@@ -450,8 +450,8 @@ DADO NECESSÁRIO: nome, propósito, 4 coordenadas, casos-teste mínimos
 
 ## §15 — Auto-verificação
 
-Última verificação de conformidade: 2026-05-11
-Próxima verificação: 2026-06-11
+Última verificação de conformidade: 2026-05-12
+Próxima verificação: 2026-06-12
 
 Checklist:
 - [x] Frontmatter completo (4 coordenadas + categoria + version + verificado_em)
@@ -464,6 +464,8 @@ Checklist:
 - [x] §4-A a §4-G presentes no pipeline Create
 - [x] §12 com estrutura completa de pastas e regras de qualidade
 - [x] Tamanho dentro do limite
+- [x] A17-A21 incorporadas em reference 02 (L19-L21 aplicadas)
+- [x] 4 schemas em _compartilhados/SCHEMAS/ criados (fatos-estruturados, analise-pericial, status-pre-mod4, dossie-caso)
 
 ## §16 — Lições incorporadas
 
@@ -496,3 +498,9 @@ L12 — Escopo misto é o erro mais caro. Aplico: V8 em todo modo operacional.
 L13 — Sem contrato, não há serviço. Aplico: schema de input e output obrigatórios (A16). Pipeline sem contratos explícitos depende de contexto implícito — frágil e irrastreável.
 
 L14-L18 — Lições de operação e ambiente. Ver `references/05-licoes-mod4.md` para detalhe completo. Resumo: verificar versão antes de instalar (L14); caminhos configuráveis, instalação bloqueante (L15); inventário antes de qualquer diagnóstico (L16); scripts PS5-compatíveis (L17); web para design, Cowork para execução (L18). Aplico: V8 em todo modo operacional, sem exceção. Skill com funções em camadas distintas não falha no momento da criação — falha silenciosamente em produção, ativando quando não deveria e gerando output inconsistente. O custo de split tardio é 5× maior que o de split na criação.
+
+L19 — `git_auto_commit: true` sem pipeline real é declaração falsa. Aplico: verificar existência de script de commit antes de aceitar o campo como verdadeiro (A17). Default seguro é `false`.
+
+L20 — `chains_to` sem skill instalada ou sem schema de contrato é promessa verbal, não contrato. Aplico: A18 bloqueia criação de skill que aponta para skill inexistente ou sem schema. Toda delegação exige skill existente + schema em `_compartilhados/SCHEMAS/`.
+
+L21 — Artefatos com função de referência (vocabulário, padrões, regras) não são skills. Aplico: A21 verifica categoria e realoca para `_compartilhados/references/` quando a skill não produz output externo acionável. `padrao-redacional` é o caso canônico deste erro.
