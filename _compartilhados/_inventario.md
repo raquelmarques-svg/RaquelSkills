@@ -17,7 +17,7 @@ analise-calculo-renda-bpc | 1.0.0 | - | - | DEPRECIADO
 analise-renda-bpc | - | C4 | F1 | draft-pendente
 widget-visual | - | C0 | transversal | draft-pendente
 recorte-pdf | - | C3 | transversal | draft-pendente
-revisao-previa-mod4 | - | C4 | transversal | draft-pendente
+revisao-previa-mod4 | 1.0.0 | C4 | transversal | ativo
 # references (nao-skills)
 padrao-redacional | 1.0.0 | reference | transversal | ativo (_compartilhados/informacoes/)
 
