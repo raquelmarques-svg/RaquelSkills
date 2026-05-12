@@ -12,14 +12,16 @@ version: 1.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
 git_auto_commit: false
-depends_on:
-  - _compartilhados/SCHEMAS/output/fatos-estruturados.v1.json
+depends_on: []
+recursos_compartilhados:
+  schemas:
+    - _compartilhados/SCHEMAS/output/fatos-estruturados.v1.json
 chains_to:
   - dossie-caso
   - replica
   - pericia-acidentaria
   - pericia-previdenciaria
-  - analise-calculo-renda-bpc
+  - analise-calculo-renda-bpc  # plugin externo — não está em skills/
 licoes_aplicadas:
   - L1, L2, L3, L5, L10, L11, L13
 regras_aplicaveis:

@@ -14,8 +14,7 @@ categoria: capability
 justificativa: Produz arquivo .docx concreto entregue via present_files; não é preference porque gera output físico, não configura comportamento.
 depends_on:
   - revisao-previa-mod4
-chains_to:
-  - present_files
+chains_to: []  # present_files é ferramenta Cowork, não skill
 frentes_consultadas:
   - transversal
 recursos_compartilhados:

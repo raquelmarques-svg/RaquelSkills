@@ -12,9 +12,12 @@ version: 1.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
 git_auto_commit: false
-depends_on:
-  - _compartilhados/SCHEMAS/input/status-pre-mod4.v1.json
-  - _compartilhados/informacoes/padrao-redacional.md
+depends_on: []
+recursos_compartilhados:
+  schemas:
+    - _compartilhados/SCHEMAS/input/status-pre-mod4.v1.json
+  informacoes:
+    - _compartilhados/informacoes/padrao-redacional.md
 chains_to:
   - mod4
 chains_from:
