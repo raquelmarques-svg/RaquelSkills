@@ -1,7 +1,7 @@
 ---
 name: skill-creator-am
 description: |
-  Cria, edita, audita e refatora skills da biblioteca Almeida Marques conforme arquitetura V4. INVOQUE para: criar skill nova, editar SKILL.md, refatorar skill, auditar conformidade, diagnosticar saúde, migrar duplicação para _compartilhados/, reverter modificação. Aplica 7 verificações pré + 12 auditorias pós, cláusulas R1-R11 conforme tipo, backup R3 obrigatório, _APAGAR/ em vez de delete, frontmatter V4 com 4 coordenadas (Project, Núcleo, Frente, Camada). Gatilhos: "criar skill", "nova skill", "editar SKILL.md", "refatorar skill", "auditar skill", "diagnosticar skill", "undo skill", "migrar para compartilhados". NÃO use para: peças processuais (delego para skills C5), revisão de texto (revisao-juridica), formatar DOCX (mod4), levantamento factual (levanta-fatos), organização de pasta (juridir). Esta skill cria as outras.
+  Cria, edita, audita e refatora skills da biblioteca Almeida Marques conforme arquitetura V4. INVOQUE para: criar skill nova, editar SKILL.md, refatorar skill, auditar conformidade, diagnosticar saúde, migrar duplicação para _compartilhados/, reverter modificação. Aplica 9 verificações pré + A1–A21 auditorias pós, cláusulas R1-R11 conforme tipo, backup R3 obrigatório, _APAGAR/ em vez de delete, frontmatter V4 com 4 coordenadas (Project, Núcleo, Frente, Camada). Gatilhos: "criar skill", "nova skill", "editar SKILL.md", "refatorar skill", "auditar skill", "diagnosticar skill", "undo skill", "migrar para compartilhados". NÃO use para: peças processuais (delego para skills C5), revisão de texto (revisao-juridica), formatar DOCX (mod4), levantamento factual (levanta-fatos), organização de pasta (juridir). Esta skill cria as outras.
 project: Proj02
 nucleo: N5
 frente: transversal
@@ -96,7 +96,7 @@ Se qualquer item falta, sinalizo antes de prosseguir.
 FAÇO:
 - Criar SKILL.md novo no padrão canônico V4
 - Editar SKILL.md existente com backup R3
-- Auditar conformidade rodando 12 verificações
+- Auditar conformidade rodando A1–A21
 - Detectar duplicação entre skill nova e biblioteca
 - Sugerir migração para `_compartilhados/`
 - Inserir cláusulas R1-R11 automaticamente conforme tipo
@@ -141,7 +141,7 @@ NÃO disparo quando:
 
 | Modo | Origem | Função | Status |
 |---|---|---|---|
-| Create | Anthropic + AM | Criar skill nova com 7 verificações pré + 12 auditorias pós | Ativo |
+| Create | Anthropic + AM | Criar skill nova com 9 verificações pré + A1–A21 auditorias pós | Ativo |
 | Eval | Anthropic | Rodar casos-teste contra skill existente | Ativo |
 | Improve | Anthropic | Sugerir correções a partir de falhas de eval | Ativo |
 | Benchmark | Anthropic | Medir variância em N execuções | Ativo |
@@ -172,14 +172,14 @@ Fluxo padrão de criação de skill nova:
 9.  Gerar SCHEMAS/ — schemas JSON de input quando aplicável (ver §4-D)
 10. Gerar scripts/ — Python quando pipeline exige execução (ver §4-E)
 11. Gerar examples/ — 3 positivos + 2 negativos (ver §4-F)
-12. Rodar 12 auditorias pós-criação (bloqueantes)
+12. Rodar auditorias A1–A21 (bloqueantes)
 13. Empacotar em .skill (R1: perguntar antes)
 14. Registrar em log de auditoria
 15. Executar §4-G — pipeline pós-criação (Git sync)
 ```
 
 Detalhe das 9 verificações em `references/01-verificacoes-pre-criacao.md`. V8 (análise semântico-funcional-pragmática) e V9 (blueprint arquitetural SOLID+DDD+ITIL/COBIT) aplicam-se a **todo modo operacional**, não apenas ao Create.
-Detalhe das 16 auditorias em `references/02-auditorias-pos-criacao.md`.
+Detalhe das auditorias A1–A21 em `references/02-auditorias-pos-criacao.md`.
 
 ### §4-A — references/ (obrigatório)
 
@@ -221,7 +221,7 @@ Cada caso: Contexto + Comportamento esperado (passo a passo) + Output esperado. 
 
 ### §4-G — Pipeline pós-criação (Git sync)
 
-Executar imediatamente após empacotar o `.skill`. Skill não está "entregue" sem commit + push confirmados (L11).
+Executar imediatamente após empacotar o `.skill`. Skill não está "entregue" sem commit + push confirmados (L11). Default `git_auto_commit: false` — ver L19 e A17.
 
 ```powershell
 $skill = "<nome-skill>"
@@ -351,7 +351,7 @@ Comando: skill-creator-am diagnostico [skill]
 Output canônico:
 - Escopo (declarado vs efetivo)
 - Volume (linhas por arquivo)
-- Conformidade (12 itens)
+- Conformidade (A1–A21)
 - Fadiga estrutural (5 sinais)
 - Recursos compartilhados (consumo + duplicação)
 - Recomendações priorizadas
@@ -450,8 +450,7 @@ DADO NECESSÁRIO: nome, propósito, 4 coordenadas, casos-teste mínimos
 
 ## §15 — Auto-verificação
 
-Última verificação de conformidade: 2026-05-12
-Próxima verificação: 2026-06-12
+Verificação: 2026-05-12 · Próxima: 2026-06-12
 
 Checklist:
 - [x] Frontmatter completo (4 coordenadas + categoria + version + verificado_em)
@@ -463,9 +462,8 @@ Checklist:
 - [x] 5 casos-teste presentes (3 positivos + 2 negativos)
 - [x] §4-A a §4-G presentes no pipeline Create
 - [x] §12 com estrutura completa de pastas e regras de qualidade
-- [x] Tamanho dentro do limite
-- [x] A17-A21 incorporadas em reference 02 (L19-L21 aplicadas)
-- [x] 4 schemas em _compartilhados/SCHEMAS/ criados (fatos-estruturados, analise-pericial, status-pre-mod4, dossie-caso)
+- [x] Tamanho dentro do limite (≤ 500 linhas)
+- [x] L19–L21 e A17–A21 incorporadas (§16 + references/02)
 
 ## §16 — Lições incorporadas
 
@@ -499,8 +497,4 @@ L13 — Sem contrato, não há serviço. Aplico: schema de input e output obriga
 
 L14-L18 — Lições de operação e ambiente. Ver `references/05-licoes-mod4.md` para detalhe completo. Resumo: verificar versão antes de instalar (L14); caminhos configuráveis, instalação bloqueante (L15); inventário antes de qualquer diagnóstico (L16); scripts PS5-compatíveis (L17); web para design, Cowork para execução (L18). Aplico: V8 em todo modo operacional, sem exceção. Skill com funções em camadas distintas não falha no momento da criação — falha silenciosamente em produção, ativando quando não deveria e gerando output inconsistente. O custo de split tardio é 5× maior que o de split na criação.
 
-L19 — `git_auto_commit: true` sem pipeline real é declaração falsa. Aplico: verificar existência de script de commit antes de aceitar o campo como verdadeiro (A17). Default seguro é `false`.
-
-L20 — `chains_to` sem skill instalada ou sem schema de contrato é promessa verbal, não contrato. Aplico: A18 bloqueia criação de skill que aponta para skill inexistente ou sem schema. Toda delegação exige skill existente + schema em `_compartilhados/SCHEMAS/`.
-
-L21 — Artefatos com função de referência (vocabulário, padrões, regras) não são skills. Aplico: A21 verifica categoria e realoca para `_compartilhados/references/` quando a skill não produz output externo acionável. `padrao-redacional` é o caso canônico deste erro.
+L19-L21 — Constrições de integridade estrutural. Ver `references/02-auditorias-pos-criacao.md` (A17–A19) para detalhe completo. Resumo: `git_auto_commit: false` por padrão — `true` só após push confirmado (L19, A17); `chains_to` requer skill instalada + schema — promessa sem contrato bloqueia criação (L20, A18); artefatos de referência (`_compartilhados/informacoes/`) não são skills invocáveis — `padrao-redacional` é o caso canônico de violação corrigida (L21, A19).

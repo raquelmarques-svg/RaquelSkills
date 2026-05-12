@@ -1,4 +1,4 @@
-# 12 Auditorias pós-criação — detalhamento operacional
+# Auditorias pós-criação A1–A21 — detalhamento operacional
 
 Aplicadas após geração do SKILL.md, references, scripts e examples. Cada falha registra ponto em relatório; criação não conclui até resolução ou exceção justificada.
 
@@ -49,9 +49,9 @@ recursos_compartilhados: dict
 
 Bloqueio se campo obrigatório ausente. Alerta amarelo se quase-obrigatório ausente.
 
-## Auditoria 3 — Lições L1-L10 aplicáveis incorporadas
+## Auditoria 3 — Lições L1-L21 aplicáveis incorporadas
 
-Critério: skill incorpora lições da mod4 conforme tipo.
+Critério: skill incorpora lições aplicáveis conforme tipo.
 
 Tabela de aplicabilidade:
 
@@ -65,8 +65,16 @@ Tabela de aplicabilidade:
 | L6 (versão instalada) | Skills com versionamento |
 | L7 (encadeamento) | Skills que chamam outras |
 | L8 (ambiente-consciente) | Skills que detectam ambiente |
-| L9 (zipfile sobre template) | mod4 e similares |
-| L10 (letterhead VML) | mod4 apenas |
+| L9 (UTF-8) | Toda skill com scripts Python |
+| L10 (artefatos obrigatórios) | Toda skill com MODELOS/ASSETS/SCHEMAS |
+| L11 (git sync) | Toda skill com pipeline de entrega |
+| L12 (escopo misto) | Toda skill (sempre — via V8) |
+| L13 (contrato) | Toda skill com input estruturado |
+| L14-L18 (ambiente) | Skills com scripts e instalação |
+| L19 (git_auto_commit) | Toda skill com frontmatter git |
+| L20 (chains_to contrato) | Toda skill com chains_to declarado |
+| L21 (boundary informacoes) | Toda skill que referencia _compartilhados |
+| LM1-LM2 | mod4 e skills com DOCX corporativo apenas |
 
 Bloqueio: aplicáveis ausentes. Alerta: justificar omissão.
 
@@ -220,27 +228,6 @@ Alerta vermelho: verificado_em ausente ou > 90 dias.
 
 ---
 
-## Síntese — checklist operacional
-
-Após gerar SKILL.md + references + scripts + examples:
-
-```
-[ ] A1: Tamanho ≤ 500 linhas
-[ ] A2: Frontmatter completo
-[ ] A3: Lições L1-L10 aplicáveis incorporadas
-[ ] A4: Cláusulas R1-R11 aplicáveis presentes
-[ ] A5: Descrição diretiva
-[ ] A6: Pragmática (5 testes)
-[ ] A7: 12 dimensões redacionais (se produz texto)
-[ ] A8: Vocabulário canônico
-[ ] A9: 5 casos-teste presentes
-[ ] A10: Duplicação < 10 linhas
-[ ] A11: Dependências consistentes
-[ ] A12: verificado_em ≤ 90 dias
-```
-
-Se todas verdes, criação aprovada. Senão, devolver relatório priorizado.
-
 ## Auditoria 13 — Artefatos completos (MODELOS/, ASSETS/, SCHEMAS/)
 
 Critério: toda pasta declarada em `recursos_compartilhados` existe com conteúdo real.
@@ -298,7 +285,6 @@ Resposta:
 - scripts/ presente, tests/ ausente: amarelo (recomendado, não bloqueante)
 - scripts/ presente, tests/ com < 2 casos: amarelo
 
-
 ## Auditoria 15 — ITIL/COBIT compliance
 
 Critério: skill cumpre os 8 itens do checklist IC da reference 13.
@@ -350,131 +336,104 @@ Resposta:
 
 ---
 
-## Auditoria 17 — git_auto_commit honesto
+## Auditoria 17 — git_auto_commit seguro (L19)
 
-Critério: campo `git_auto_commit` somente é `true` quando há pipeline real de commit automatizado
-comprovado (script em scripts/ que executa git commit + push sem intervenção manual).
+Critério: o campo `git_auto_commit` no frontmatter não declara `true` sem evidência de pipeline funcional.
+
+Fundamento: `git_auto_commit: true` implica que o §4-G (Git sync) foi implementado, testado e confirmado com `git push` bem-sucedido em ambiente real. Declarar `true` sem essa evidência é falsa promessa de entrega automática — a skill aparece como entregue mas o repositório não foi atualizado.
 
 Procedimento:
-1. Verificar valor de `git_auto_commit` no frontmatter
-2. Se `true`, verificar se existe script em scripts/ que chama git commit e git push
-3. Se `true` sem script: falha — campo declara promessa não implementada
+1. Ler campo `git_auto_commit` no frontmatter
+2. Se `git_auto_commit: true`, verificar:
+   a. §4-G está presente no SKILL.md com bloco PowerShell completo?
+   b. O log de auditoria registra ao menos um `git push` bem-sucedido para esta skill?
+3. Se `git_auto_commit` ausente: tratar como `false` (default seguro)
 
-Resposta:
-- `git_auto_commit: false` ou `git_auto_commit` ausente: verde (declaração honesta)
-- `git_auto_commit: true` com script de commit funcional: verde
-- `git_auto_commit: true` sem script: vermelho (bloqueio — declaração falsa em contrato)
+Critérios:
+- `git_auto_commit: false` ou campo ausente: verde (default seguro)
+- `git_auto_commit: true` + §4-G presente + push confirmado no log: verde
+- `git_auto_commit: true` + §4-G ausente ou push não confirmado: **vermelho (bloqueio)**
 
-Correção padrão: alterar para `git_auto_commit: false` e registrar em `licoes_aplicadas: L11`.
+## Auditoria 18 — chains_to com contrato verificável (L20)
+
+Critério: cada skill listada em `chains_to` existe na biblioteca instalada e tem schema de input declarado.
+
+Fundamento: `chains_to` é um contrato de interface, não uma anotação informal. Uma skill que aponta para downstream inexistente ou sem schema cria dependência irrastreável — quando a cadeia falha, não há forma de identificar qual elo quebrou. L20 exige que todo `chains_to` seja verificável antes da criação.
+
+Procedimento:
+1. Para cada entrada em `chains_to`:
+   a. Verificar existência em `C:\RaquelSkills\skills\[nome]\SKILL.md`
+   b. Se existe: verificar que `SCHEMAS/` contém ao menos um arquivo de schema, OU que `_compartilhados/SCHEMAS/` contém schema referenciado por esta skill
+2. Registrar: existe (S/N) + tem schema (S/N)
+
+Critérios:
+- Skill existe + tem schema: verde
+- Skill existe + sem schema: amarelo (alerta — contrato parcial)
+- Skill não existe: **vermelho (bloqueio)** — não criar skill com `chains_to` apontando para vazio
+
+Exceção: skill nova que ainda será criada pode ser declarada com nota `# pendente` e prazo explícito. Sem prazo: bloqueio.
+
+## Auditoria 19 — Boundary informacoes vs skills (L21)
+
+Critério: nenhum arquivo de `_compartilhados/informacoes/` está instalado como `.skill` invocável, nem declarado em `depends_on` como se fosse skill funcional.
+
+Fundamento: arquivos de referência (vocabulário, padrões redacionais, normas indexadas) são dados lidos passivamente — não são skills que executam lógica. Quando um reference file é tratado como skill, ele carrega frontmatter falso, aparece no manifesto de skills e consome slot de contexto sem produzir output. `padrao-redacional` foi o caso canônico: instalado como skill, corrigido para `_compartilhados/informacoes/` após detecção.
+
+Procedimento:
+1. Para cada entrada em `depends_on`, verificar:
+   a. O caminho aponta para `_compartilhados/informacoes/`? → falha: reference file não é skill
+   b. O arquivo tem `description` com verbo de ação (Crie, Gere, Audite)? → se não, suspeito de ser reference file disfarçado
+2. Verificar manifesto do plugin: algum `.md` de `_compartilhados/informacoes/` está listado como skill instalada?
+
+Critérios:
+- Nenhuma violação: verde
+- `depends_on` aponta para informacoes/: **vermelho (bloqueio)** — remover e referenciar como leitura contextual em §0
+- Reference file no manifesto como skill: **vermelho (bloqueio)** — desinstalar e mover para informacoes/
+
+## Auditoria 20 — Isolamento de contexto de sessão (elefante branco)
+
+Critério: a skill declara todos os seus inputs obrigatórios explicitamente em §0 e não pressupõe contexto acumulado de outras skills ativas na mesma sessão.
+
+Fundamento: quando múltiplas skills são carregadas na mesma sessão sem limpeza de contexto, suas instruções coexistem e competem — fenômeno de *prompt collision*. Uma skill que depende de contexto implícito (produzido por outra skill no mesmo turno sem checkpoint) falha silenciosamente: o output parece plausível mas aplica regras de outra skill. O checkpoint PRONTO/BLOQUEADO entre skills é o mecanismo de isolamento.
+
+Procedimento:
+1. Verificar se §0 lista todos os inputs que a skill precisa para operar (gate explícito)
+2. Verificar se §0 não contém frases do tipo "usando o contexto anterior" ou "com base no que foi feito"
+3. Se skill tem `depends_on`, verificar que o handoff é via documento (JSON, MD, DOCX) e não via contexto de sessão implícito
+4. Verificar se a skill produz bloco de checkpoint (PRONTO/BLOQUEADO ou equivalente) antes de acionar `chains_to`
+
+Critérios:
+- §0 com gate explícito + handoff por documento + checkpoint de saída: verde
+- §0 com gate implícito (pressupõe contexto acumulado): **amarelo** — reescrever gate
+- Handoff por contexto de sessão sem documento intermediário: **vermelho (bloqueio)**
+- chains_to acionado sem checkpoint de saída: **vermelho (bloqueio)**
+
+## Auditoria 21 — Profundidade de cadeia ≤ 3 hops sem checkpoint
+
+Critério: cadeias de `chains_to` com profundidade > 3 hops requerem checkpoint explícito (bloco PRONTO/BLOQUEADO) a cada hop.
+
+Fundamento: uma cadeia A→B→C→D com 4 hops sem checkpoint acumula contexto de quatro skills na mesma sessão. A cada hop sem limpeza, a probabilidade de *prompt collision* cresce. O limite de 3 hops sem checkpoint é o ponto em que o custo cognitivo de rastreamento supera o benefício da automação — acima disso, o comportamento do modelo torna-se imprevisível e irrastreável para a Raquel.
+
+Procedimento:
+1. Mapear a cadeia completa a partir desta skill via `chains_to` recursivo
+2. Contar hops até o primeiro skill sem `chains_to` (terminal)
+3. Para cada hop além do terceiro, verificar se existe checkpoint documentado entre os dois skills
+
+Critérios:
+- Cadeia ≤ 3 hops: verde
+- Cadeia de 4 hops com checkpoint em cada: verde
+- Cadeia de 4+ hops sem checkpoint: **vermelho (bloqueio)** — inserir checkpoint ou quebrar a cadeia
+
+Exceção: pipelines de auditoria interna (Audit, Diagnostico, Govern) podem ter cadeia maior porque operam em sessões isoladas e dedicadas, sem skills de conteúdo jurídico coativas.
 
 ---
 
-## Auditoria 18 — chains_to com skill instalada e schema declarado
-
-Extensão de A11. Critério: toda skill listada em `chains_to` (a) existe na biblioteca E (b) tem
-contrato de interface (schema de input em _compartilhados/SCHEMAS/ ou em sua própria SCHEMAS/).
-
-Procedimento:
-1. Para cada skill em `chains_to`:
-   a. Verificar se existe em `C:\RaquelSkills\skills\[nome]\SKILL.md`
-   b. Verificar se existe schema de input em:
-      - `C:\RaquelSkills\_compartilhados\SCHEMAS\input\[nome]*.json` OU
-      - `C:\RaquelSkills\skills\[nome]\SCHEMAS\*.json`
-2. Para skill inexistente: bloqueio (A11 já detecta; A18 adiciona o contrato)
-3. Para skill existente sem schema: alerta vermelho — promessa verbal não-contratual
-
-Resposta:
-- Todas presentes + todas com schema: verde
-- Skill presente, schema ausente: vermelho (chains_to sem contrato é promessa verbal)
-- Skill ausente: vermelho (bloqueio — A11)
-
-Nota: skill em chains_to marcada como "ainda não instalada" pode ser declarada com prefixo
-`[pendente]` no frontmatter para distinguir promessa futura de dependência ativa.
-
----
-
-## Auditoria 19 — depends_on declara ASSETS/ como dependências explícitas
-
-Critério: toda referência a arquivo em `ASSETS/` no corpo do SKILL.md deve estar listada em
-`depends_on` do frontmatter, para que auditoria A11 possa verificar existência.
-
-Procedimento:
-```python
-import re, yaml
-from pathlib import Path
-
-def auditar_assets_em_depends(skill_path):
-    p = Path(skill_path)
-    texto = (p / 'SKILL.md').read_text(encoding='utf-8')
-    fm = yaml.safe_load(texto.split('---')[1])
-    refs_assets = re.findall(r'ASSETS/[\w\-\.]+', texto)
-    depends_on = fm.get('depends_on', [])
-    ausentes = [r for r in set(refs_assets) if r not in depends_on]
-    return ausentes
-```
-
-Resposta:
-- 0 ASSETS não declarados: verde
-- 1+ ASSETS referenciados mas ausentes de depends_on: amarelo (não bloqueante, mas
-  significa que A11 não consegue verificar existência das dependências reais)
-
----
-
-## Auditoria 20 — git_repo usa caminho correto para o ambiente de execução
-
-Critério: campo `git_repo` no frontmatter usa caminho Windows (`C:\RaquelSkills`) para skills
-executadas via Cowork/PowerShell; skills que executam apenas via bash Linux devem usar o caminho
-de mount (`/sessions/.../mnt/RaquelSkills/`). Paths hardcoded que funcionam em apenas um
-ambiente sem declaração explícita são falha de L16.
-
-Procedimento:
-1. Verificar valor de `git_repo`
-2. Se contém `C:\`: verificar se a skill usa scripts PS5/PS7 (compatível)
-3. Se contém `/sessions/`: verificar se a skill usa apenas bash (compatível)
-4. Se contém nenhum dos dois: alerta amarelo
-
-Resposta:
-- Path Windows + skill Cowork-only: verde
-- Path Linux + skill bash-only: verde
-- Path Windows + skill bash-only sem conversão: amarelo (scripts falharão em ambiente Linux)
-- Path ausente: amarelo (default para C:\RaquelSkills, documentar como convenção)
-
-Correção padrão quando há ambiguidade: declarar `git_repo_windows` e `git_repo_linux`
-separadamente, ou usar `resolver_output_root.py` para detecção automática.
-
----
-
-## Auditoria 21 — categoria correta: capability vs. reference
-
-Critério: skill com `categoria: capability` deve produzir output acionável por agente externo
-(texto jurídico, análise estruturada, arquivo). Skill que apenas fornece vocabulário, regras ou
-padrões para consumo interno de outras skills deve ser `categoria: reference` e residir em
-`_compartilhados/references/`, não em `skills/`.
-
-Procedimento:
-1. Verificar campo `categoria`
-2. Se `capability`: verificar se §1 FAÇO contém pelo menos um item que produz output externo
-   (texto, arquivo, análise, formulário, decisão)
-3. Se FAÇO contém apenas "fornece vocabulário", "define padrões", "orienta redação" sem
-   produção de output: categoria incorreta → reclassificar como `reference`
-
-Exemplos de classificação incorreta detectada:
-- `padrao-redacional` como skill (fornece só padrões) → deve ser reference em _compartilhados/
-- `vocabulario-controlado` como skill → deve ser reference em _compartilhados/
-
-Resposta:
-- capability com output externo documentado: verde
-- capability sem output externo identificável: vermelho (reclassificar + mover para _compartilhados/)
-- reference como skill em skills/: vermelho (mover para _compartilhados/references/)
-
----
-
-## Checklist operacional atualizado (A1-A21)
+## Checklist operacional atualizado (A1–A21)
 
 ```
 [ ] A1:  Tamanho ≤ 500 linhas
 [ ] A2:  Frontmatter completo
-[ ] A3:  Lições L1-L18 aplicáveis incorporadas
+[ ] A3:  Lições L1-L21 aplicáveis incorporadas
 [ ] A4:  Cláusulas R1-R11 aplicáveis presentes
 [ ] A5:  Descrição diretiva
 [ ] A6:  Pragmática (5 testes)
@@ -482,23 +441,17 @@ Resposta:
 [ ] A8:  Vocabulário canônico
 [ ] A9:  5 casos-teste em examples/
 [ ] A10: Duplicação < 10 linhas
-[ ] A11: Dependências consistentes (chains_to + depends_on)
+[ ] A11: Dependências consistentes
 [ ] A12: verificado_em ≤ 90 dias
 [ ] A13: Artefatos completos (MODELOS/ASSETS/SCHEMAS/)
 [ ] A14: tests/ quando scripts/ existe
 [ ] A15: ITIL/COBIT compliance (IC-1 a IC-8)
 [ ] A16: Contratos de interface (CT-1 a CT-7)
-[ ] A17: git_auto_commit honesto (true só com pipeline real)
-[ ] A18: chains_to com skill instalada E schema declarado
-[ ] A19: depends_on declara ASSETS/ referenciados
-[ ] A20: git_repo com caminho correto para o ambiente
-[ ] A21: categoria capability vs. reference correta
+[ ] A17: git_auto_commit seguro (false por padrão; true só com push confirmado)
+[ ] A18: chains_to com contrato verificável (skill existe + tem schema)
+[ ] A19: Boundary informacoes vs skills (nenhum reference file como skill invocável)
+[ ] A20: Isolamento de contexto de sessão (gate explícito + handoff por documento)
+[ ] A21: Profundidade de cadeia ≤ 3 hops ou checkpoint a cada hop adicional
 ```
 
-Bloqueantes (impedem aprovação da skill): A1 vermelho, A2 (campo obrigatório ausente),
-A9 (< 5 casos), A11 (skill inexistente), A16 CT-1/CT-2 ausentes, A17 vermelho, A18 vermelho,
-A21 vermelho.
-
-Não-bloqueantes (registrar e corrigir na próxima auditoria R9): A3, A4, A6, A7, A8, A12,
-A13 amarelo, A14, A19, A20.
-
+Se todas verdes, criação aprovada. Senão, devolver relatório priorizado.
