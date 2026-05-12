@@ -18,7 +18,8 @@
 
 param(
     [int]$Passo = 0,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [string]$PluginCachePath = ""   # Opcional: caminho direto para o cache do plugin
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -33,15 +34,25 @@ $DOWNLOADS = "$env:USERPROFILE\Downloads"
 $TS        = Get-Date -Format "yyyyMMdd-HHmmss"
 $GIT_AUTHOR = "Raquel de Almeida Marques <raquelmarques@artemis.org.br>"
 
-# Descoberta dinamica do cache do plugin
+# Descoberta do cache do plugin
+# Estrutura esperada: skills-plugin\<id1>\<id2>\skills\
 $PLUGIN_CACHE = $null
-$pluginBase = "$env:APPDATA\Claude\local-agent-mode-sessions\skills-plugin"
-if (Test-Path $pluginBase) {
-    $found = Get-ChildItem -Path $pluginBase -Recurse -Filter "SKILL.md" -ErrorAction SilentlyContinue |
-             Where-Object { $_.FullName -match "\\skills\\mod4\\" } |
-             Select-Object -First 1
-    if ($found) {
-        $PLUGIN_CACHE = Split-Path (Split-Path $found.FullName -Parent) -Parent
+if ($PluginCachePath -and (Test-Path $PluginCachePath)) {
+    $PLUGIN_CACHE = $PluginCachePath
+} else {
+    $pluginBase = "$env:APPDATA\Claude\local-agent-mode-sessions\skills-plugin"
+    if (Test-Path $pluginBase) {
+        # Percorre exatamente 3 niveis: id1 \ id2 \ skills
+        foreach ($id1 in (Get-ChildItem -Path $pluginBase -Directory -ErrorAction SilentlyContinue)) {
+            foreach ($id2 in (Get-ChildItem -Path $id1.FullName -Directory -ErrorAction SilentlyContinue)) {
+                $candidate = Join-Path $id2.FullName "skills"
+                if (Test-Path (Join-Path $candidate "mod4\SKILL.md")) {
+                    $PLUGIN_CACHE = $candidate
+                    break
+                }
+            }
+            if ($PLUGIN_CACHE) { break }
+        }
     }
 }
 
