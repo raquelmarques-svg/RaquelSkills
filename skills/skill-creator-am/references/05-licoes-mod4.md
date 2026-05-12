@@ -160,3 +160,23 @@ Aplica em: mod4 apenas.
 4. Atualizar tabela de aplicabilidade
 5. Atualizar references 02 e 04
 6. Aplicar retroativamente via modo Govern
+
+### L12 — Escopo misto é o erro mais caro
+
+Problema: skill criada com funções em camadas distintas (ex: análise C4 + geração visual C0 + extração C3). Não falha ruidosamente na criação — falha silenciosamente em produção: ativa quando não deveria, produz output inconsistente entre sessões, resiste a refatoração futura porque cada função tem dependências diferentes.
+
+Sintomas de escopo misto:
+- Gatilhos ambíguos que disparam em ≥ 3 contextos distintos
+- R1 (confirmação de exportação) ocorre no meio do pipeline, não no início
+- Skill tem "modo lite" e "modo completo" descritos no §1
+- Scripts genéricos hardcoded que funcionariam em qualquer processo
+- Assets (normas, SM histórico) que outras skills também precisariam
+- Função visual (PNG, HTML, widget) misturada com função analítica (cálculo, classificação)
+
+Aplicação:
+- V8 em todo modo operacional: Create, Edit, Govern, Refactor, Diagnóstico
+- V8 nunca é pulada mesmo quando o pedido parece óbvio
+- Custo de split tardio é 5× maior que split na criação
+- Quando V8 reprova: nomear as skills resultantes antes de criar qualquer uma
+
+Aplica em: toda operação da skill-creator-am, sem exceção.

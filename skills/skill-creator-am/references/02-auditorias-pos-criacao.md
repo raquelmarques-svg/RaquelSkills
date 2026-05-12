@@ -298,14 +298,64 @@ Resposta:
 - scripts/ presente, tests/ ausente: amarelo (recomendado, não bloqueante)
 - scripts/ presente, tests/ com < 2 casos: amarelo
 
+
+## Auditoria 15 — ITIL/COBIT compliance
+
+Critério: skill cumpre os 8 itens do checklist IC da reference 13.
+
+Procedimento:
+1. Ler reference 13 (ITIL/COBIT)
+2. Verificar cada item IC-1 a IC-8 contra o SKILL.md e o frontmatter
+
+```
+[ ] IC-1: Propósito exprimível em uma frase (ITIL value focus)
+[ ] IC-2: Auditoria de biblioteca feita antes de criar
+[ ] IC-3: Escopo mínimo — § 1 FAÇO tem ≤ 8 itens
+[ ] IC-4: chains_to + depends_on declarados
+[ ] IC-5: SLA declarado no frontmatter
+[ ] IC-6: Riscos documentados
+[ ] IC-7: CI registrado no _inventario.md
+[ ] IC-8: Impacto em downstream analisado
+```
+
+Resposta:
+- 8/8: verde
+- 6-7/8: amarelo (completar antes da próxima auditoria R9)
+- < 6/8: vermelho (bloqueio de uso em produção até conformidade)
+
+## Auditoria 16 — Contratos de interface (reference 14)
+
+Critério: skill tem contratos de input e output declarados e verificáveis.
+
+Procedimento:
+1. Verificar se SCHEMAS/ existe com schema de input
+2. Verificar se schema de output está declarado (em SCHEMAS/ da skill ou em _compartilhados/SCHEMAS/)
+3. Verificar presença de preconditions e postconditions no §0
+4. Verificar se `produced_by` e `consumed_by` estão no schema
+
+Checklist:
+```
+[ ] CT-1: Schema de input em SCHEMAS/
+[ ] CT-2: Schema de output declarado
+[ ] CT-3: produced_by e consumed_by no schema
+[ ] CT-4: Campos obrigatórios com description e example
+[ ] CT-5: Preconditions no §0
+[ ] CT-6: Postconditions no §0
+[ ] CT-7: SLA declarado no frontmatter
+```
+
+Resposta:
+- CT-1 ou CT-2 ausentes: vermelho (bloqueio — skill sem contrato não entra em produção)
+- CT-3 a CT-7 ausentes parcialmente: amarelo
+
 ---
 
-## Atualização do checklist operacional
+## Checklist operacional atualizado (A1-A16)
 
 ```
 [ ] A1:  Tamanho ≤ 500 linhas
 [ ] A2:  Frontmatter completo
-[ ] A3:  Lições L1-L11 aplicáveis incorporadas (ver reference 05)
+[ ] A3:  Lições L1-L13 aplicáveis incorporadas
 [ ] A4:  Cláusulas R1-R11 aplicáveis presentes
 [ ] A5:  Descrição diretiva
 [ ] A6:  Pragmática (5 testes)
@@ -315,6 +365,9 @@ Resposta:
 [ ] A10: Duplicação < 10 linhas
 [ ] A11: Dependências consistentes
 [ ] A12: verificado_em ≤ 90 dias
-[ ] A13: Artefatos completos (MODELOS/ASSETS/SCHEMAS/ com conteúdo real)
-[ ] A14: tests/ presente quando scripts/ existe
+[ ] A13: Artefatos completos (MODELOS/ASSETS/SCHEMAS/)
+[ ] A14: tests/ quando scripts/ existe
+[ ] A15: ITIL/COBIT compliance (IC-1 a IC-8)
+[ ] A16: Contratos de interface (CT-1 a CT-7)
 ```
+
