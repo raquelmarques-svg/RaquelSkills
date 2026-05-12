@@ -11,6 +11,7 @@ version: 2.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
 git_auto_commit: false
+justificativa: Produz e revisa artigos jurídicos científicos conforme critérios de periódicos específicos — output com qualidade editorial verificável
 depends_on: []
 chains_to:
   - mod4

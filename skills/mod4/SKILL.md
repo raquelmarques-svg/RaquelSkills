@@ -41,6 +41,9 @@ regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
 verificado_em: 2026-05-11
 version: 4.1.0
+git_repo: C:\RaquelSkills
+git_auto_commit: false
+
 ---
 
 # mod4 — Padrão gráfico e estrutural do escritório

@@ -44,7 +44,7 @@ R11 (economia de acao): se o caso e simples, nao inflar com secoes vazias.
 
 ## §1 — Escopo
 
-FACO:
+FAÇO:
 - Qualificar completamente as partes (nome, CPF, data nascimento, telefone, email,
   endereco com ponto de referencia, estado civil, profissao)
 - Organizar fatos nas 5 dimensoes (naturais, humanos, clinicos, previdenciarios, juridicos)
@@ -56,7 +56,7 @@ FACO:
 - Identificar riscos com probabilidade e mitigacao
 - Recomendar skill downstream para proxima acao
 
-NAO FACO:
+NÃO FAÇO:
 - Redacao de peca processual (replica, impugnacao, peticao inicial) -> delego para skill C5
 - Analise tecnica de laudo pericial -> delego para pericia-acidentaria ou pericia-previdenciaria
 - Pesquisa juridica e analise de precedentes -> delego para analise-precedente

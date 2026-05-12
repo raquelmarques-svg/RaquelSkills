@@ -36,9 +36,20 @@ Ao ser invocada antes do desenvolvimento completo, a skill:
 2. Fornece o roteiro básico correspondente com base no conhecimento disponível
 3. Sinaliza que o desenvolvimento completo está pendente
 
+## §0 — Ativação e gate
+
+Esta skill recebe como input o tipo de cumprimento e os dados da sentença transitada.
+
+Antes de prosseguir, verifico:
+1. Há sentença transitada em julgado? (RPV, precatório, execução cível ou alimentos)
+2. Qual o réu? (INSS/União → art. 535 CPC | particular → art. 523 CPC | alimentos → art. 528 CPC)
+3. Há memória de cálculo ou planilha de débito disponível?
+
+Se nenhum dado for fornecido, solicito antes de prosseguir.
+
 ## §1 — Escopo planejado (Phase B)
 
-FAREI:
+FAÇO:
 - Verificar tipo de cumprimento: RPV (< 60 salários mínimos) vs. precatório
 - Calcular atualização monetária: SELIC (condenações contra Fazenda após STF RE 870.947)
   ou IPCA-E (condenações gerais)
@@ -48,7 +59,7 @@ FAREI:
 - Para alimentos: art. 528 CPC — intimação + 3 dias + prisão civil ou desconto em folha
 - Para RPV: verificar se o crédito é alimentar (preferência no pagamento)
 
-NÃO FAREI:
+NÃO FAÇO:
 - Redigir a petição de cumprimento → delego para skill C5 pertinente
 - Verificar checklist de ação nova → delego para check-protocolo
 
@@ -78,3 +89,20 @@ Disparo quando: "cumprir sentença", "liquidação", "RPV", "precatório", "penh
 1. Intimação do devedor: 3 dias para pagar as 3 últimas parcelas vencidas
 2. Se não pagar: prisão civil (1–3 meses) OU desconto em folha/benefício (art. 529 CPC)
 3. Prisão civil: mandado expedido via central do TJXX — verificar procedimento local
+## §4 — Calibração
+
+DADO NECESSÁRIO: tipo de cumprimento + réu identificado (INSS/particular/alimentos)
+SCRIPT AUXILIAR: nenhum nesta versão — lógica implementada diretamente pelo modelo
+
+## §5 — Auto-verificação
+
+Verificação: 2026-05-12 · Próxima: 2026-08-12
+
+Checklist:
+- [x] Frontmatter V4 completo
+- [x] verificado_em ≤ 90 dias
+- [x] §0 gate presente
+- [x] §1 FAÇO/NÃO FAÇO canônico
+- [x] Tamanho dentro do limite
+- [ ] §2 pipeline completo (Phase B pendente)
+- [ ] §3 output canônico (Phase B pendente)

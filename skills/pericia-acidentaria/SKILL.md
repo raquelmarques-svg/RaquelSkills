@@ -11,6 +11,7 @@ version: 2.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
 git_auto_commit: false
+justificativa: Cobre o ciclo completo de perícia em ação acidentária — quesitos, impugnação, nexo NTEP — output concreto e processualmente acionável
 depends_on: []
 chains_to:
   - mod4

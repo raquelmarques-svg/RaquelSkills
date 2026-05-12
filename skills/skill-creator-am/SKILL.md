@@ -34,6 +34,9 @@ regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
 verificado_em: 2026-05-12
 version: 1.6.0
+git_repo: C:\RaquelSkills
+git_auto_commit: false
+
 ---
 
 # skill-creator-am — Criador de skills da biblioteca Almeida Marques
@@ -490,11 +493,8 @@ L10 — Skill sem artefatos é esqueleto. Aplico: MODELOS/, ASSETS/, SCHEMAS/ s�
 L11 — Git sync é parte do pipeline, não etapa manual. Aplico: §4-G com bloco PowerShell canônico executado imediatamente após empacotamento. Mensagem de commit padronizada. Skill não está "entregue" sem commit + push confirmados.
 
 LM1 e LM2 — Lições mod4-específicas (zipfile sobre template; letterhead VML). Documentadas em `references/05-licoes-mod4.md`. Aplicam-se apenas à mod4 e skills com DOCX corporativo.
-
 L12 — Escopo misto é o erro mais caro. Aplico: V8 em todo modo operacional.
-
 L13 — Sem contrato, não há serviço. Aplico: schema de input e output obrigatórios (A16). Pipeline sem contratos explícitos depende de contexto implícito — frágil e irrastreável.
-
 L14-L18 — Lições de operação e ambiente. Ver `references/05-licoes-mod4.md` para detalhe completo. Resumo: verificar versão antes de instalar (L14); caminhos configuráveis, instalação bloqueante (L15); inventário antes de qualquer diagnóstico (L16); scripts PS5-compatíveis (L17); web para design, Cowork para execução (L18). Aplico: V8 em todo modo operacional, sem exceção. Skill com funções em camadas distintas não falha no momento da criação — falha silenciosamente em produção, ativando quando não deveria e gerando output inconsistente. O custo de split tardio é 5× maior que o de split na criação.
 
 L19-L21 — Constrições de integridade estrutural. Ver `references/02-auditorias-pos-criacao.md` (A17–A19) para detalhe completo. Resumo: `git_auto_commit: false` por padrão — `true` só após push confirmado (L19, A17); `chains_to` requer skill instalada + schema — promessa sem contrato bloqueia criação (L20, A18); artefatos de referência (`_compartilhados/informacoes/`) não são skills invocáveis — `padrao-redacional` é o caso canônico de violação corrigida (L21, A19).

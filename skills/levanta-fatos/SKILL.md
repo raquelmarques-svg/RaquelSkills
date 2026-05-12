@@ -21,7 +21,6 @@ chains_to:
   - replica
   - pericia-acidentaria
   - pericia-previdenciaria
-  - analise-calculo-renda-bpc  # plugin externo — não está em skills/
 licoes_aplicadas:
   - L1, L2, L3, L5, L10, L11, L13
 regras_aplicaveis:
@@ -46,7 +45,7 @@ R11 (economia de acao): se ja existe dossie com dados extraidos, verificar antes
 
 ## §1 — Escopo
 
-FACO:
+FAÇO:
 - Ler documentos fornecidos pela usuaria (PDF, imagem, texto colado) e extrair campos estruturados
 - Identificar e registrar: processo, partes, CNAE, CIDs, beneficios (NB/especie/DID/DII/DIB/DCB/RMI)
 - Extrair historico de vinculos empregaticos (funcao, CNAE, periodo) da CTPS e do CNIS
@@ -55,7 +54,7 @@ FACO:
 - Sinalizar inconsistencias entre documentos (ex.: DID na CAT diverge do laudo)
 - Produzir output conforme fatos-estruturados.v1.json
 
-NAO FACO:
+NÃO FAÇO:
 - Analisar laudo pericial tecnicamente -> delego para pericia-acidentaria ou pericia-previdenciaria
 - Interpretar fatos estrategicamente para a tese -> delego para dossie-caso
 - Redigir peca processual -> delego para skill C5 pertinente

@@ -11,6 +11,7 @@ version: 2.0.0
 verificado_em: 2026-05-12
 git_repo: C:\RaquelSkills
 git_auto_commit: false
+justificativa: Determina com precisão o que o precedente decide e o que não decide — output acionável que diferencia utilidade estratégica de citação ornamental
 depends_on: []
 chains_to:
   - artigo-juridico
