@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "widget_input",
+  "description": "Schema de input para widget-visual v1.0",
+  "type": "object",
+  "required": ["tipo", "titulo", "dados"],
+  "properties": {
+    "tipo": {
+      "type": "string",
+      "enum": ["composicao-renda", "vinculos", "linha-do-tempo", "comparativo", "tabela"],
+      "description": "Tipo de widget a gerar"
+    },
+    "titulo": {
+      "type": "string",
+      "description": "Título exibido no topo do PNG",
+      "example": "Composição de Renda Familiar — BPC/LOAS"
+    },
+    "dados": {
+      "description": "Dados do widget — estrutura varia conforme tipo (ver ASSETS/tipos-de-widget.md)"
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Diretório de saída do PNG (padrão: pasta Cowork selecionada)",
+      "default": "."
+    },
+    "prefixo": {
+      "type": "string",
+      "description": "Prefixo do nome do arquivo PNG",
+      "example": "silva-joao"
+    },
+    "largura_px": {
+      "type": "integer",
+      "description": "Largura do PNG em pixels",
+      "default": 900
+    }
+  },
+  "additionalProperties": false
+}

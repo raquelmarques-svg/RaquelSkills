@@ -18,7 +18,7 @@ gotcha-skill | 1.0.0 | C6 | transversal | ativo
 governanca-skills | 1.0.0 | C6 | transversal | ativo
 analise-calculo-renda-bpc | 1.0.0 | - | - | DEPRECIADO
 analise-renda-bpc | - | C4 | F1 | draft-pendente
-widget-visual | - | C0 | transversal | draft-pendente
-recorte-pdf | - | C3 | transversal | draft-pendente
-revisao-previa-mod4 | - | C4 | transversal | draft-pendente
+widget-visual | 1.0.0 | C3 | transversal | ativo
+recorte-pdf | 1.0.0 | C3 | transversal | ativo
+revisao-previa-mod4 | 1.0.0 | C4 | transversal | ativo
 

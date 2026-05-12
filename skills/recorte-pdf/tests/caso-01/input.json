@@ -1,0 +1,7 @@
+{
+  "pdf_path": "sample.pdf",
+  "pages": "1",
+  "region": "inteira",
+  "dpi": 150,
+  "prefixo": "teste-recorte"
+}

@@ -1,0 +1,10 @@
+{
+  "tipo": "composicao-renda",
+  "titulo": "Composição de Renda Familiar — BPC/LOAS",
+  "prefixo": "silva-maria",
+  "dados": [
+    {"membro": "Maria Silva",  "parentesco": "Requerente", "renda": 0,       "obs": "incapacitada para o trabalho"},
+    {"membro": "José Silva",   "parentesco": "Cônjuge",    "renda": 1621.00, "obs": "SM 2026"},
+    {"membro": "Ana Silva",    "parentesco": "Filha",      "renda": 0,       "obs": "menor, 8 anos"}
+  ]
+}

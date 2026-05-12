@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "recorte_input",
+  "description": "Schema de input para recorte-pdf v1.0",
+  "type": "object",
+  "required": ["pdf_path", "pages"],
+  "properties": {
+    "pdf_path": {
+      "type": "string",
+      "description": "Caminho absoluto ou relativo ao arquivo PDF",
+      "example": "C:/RaquelSkills/casos/processo-silva.pdf"
+    },
+    "pages": {
+      "type": "string",
+      "description": "Páginas a recortar: '3', '3-7' ou '3,7,12'",
+      "example": "3-5"
+    },
+    "region": {
+      "type": "string",
+      "enum": ["inteira", "superior", "inferior", "central"],
+      "default": "inteira",
+      "description": "Região da página a capturar"
+    },
+    "dpi": {
+      "type": "integer",
+      "enum": [150, 300],
+      "default": 150,
+      "description": "Resolução do PNG de saída"
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Diretório de saída (padrão: pasta Cowork selecionada)",
+      "default": "."
+    },
+    "prefixo": {
+      "type": "string",
+      "description": "Prefixo do nome dos arquivos PNG gerados",
+      "example": "silva-joao"
+    }
+  },
+  "additionalProperties": false
+}
