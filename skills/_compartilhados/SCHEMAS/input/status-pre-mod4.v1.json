@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "status-pre-mod4.v1.json",
+  "title": "Status Pré-mod4",
+  "description": "Contrato de input da revisao-previa-mod4. Produzido após revisão de conteúdo jurídico; consumido pelo mod4 como pré-condição de formatação.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["status", "tipo_peca", "cliente", "peca_conteudo"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["PRONTO_PARA_MOD4", "BLOQUEADO"],
+      "description": "PRONTO_PARA_MOD4 libera o mod4. BLOQUEADO suspende a formatação até correção."
+    },
+    "tipo_peca": {
+      "type": "string",
+      "enum": [
+        "peticao_inicial",
+        "replica",
+        "impugnacao_laudo",
+        "manifestacao_laudo",
+        "embargos_declaracao",
+        "agravo_instrumento",
+        "apelacao",
+        "recurso_ordinario",
+        "contrarrazoes",
+        "memoriais",
+        "peticao_simples",
+        "contrato_honorarios",
+        "outro"
+      ]
+    },
+    "cliente": {
+      "type": "object",
+      "required": ["nome"],
+      "properties": {
+        "nome": { "type": "string" },
+        "cpf": { "type": ["string", "null"] },
+        "processo": { "type": ["string", "null"] }
+      }
+    },
+    "peca_conteudo": {
+      "type": "string",
+      "description": "Texto integral da peça revisada, pronto para formatação pelo mod4."
+    },
+    "bloqueios": {
+      "type": "array",
+      "description": "Lista de problemas que impedem o envio ao mod4. Obrigatório quando status=BLOQUEADO.",
+      "items": {
+        "type": "object",
+        "required": ["codigo", "descricao"],
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "enum": [
+              "PEDIDO_AUSENTE",
+              "PEDIDO_INCOMPLETO",
+              "HONORARIOS_AUSENTES",
+              "VICIO_LOGICO",
+              "NORMA_SEM_FATO",
+              "FATO_SEM_NORMA",
+              "INCONSISTENCIA_INTERNA",
+              "VEDACAO_R2_R3",
+              "OUTRO"
+            ]
+          },
+          "descricao": { "type": "string" },
+          "localizacao": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "honorarios": {
+      "type": ["object", "null"],
+      "properties": {
+        "modalidade": {
+          "type": "string",
+          "enum": ["fixo", "percentual_causa", "percentual_condenacao", "tabela_oab", "sem_honorarios"]
+        },
+        "valor_ou_percentual": { "type": ["number", "null"] },
+        "base_calculo": { "type": ["string", "null"] }
+      }
+    },
+    "observacoes": {
+      "type": ["string", "null"],
+      "description": "Observações da revisao-previa-mod4 para conhecimento do mod4 — não vai para o texto da peça."
+    }
+  }
+}

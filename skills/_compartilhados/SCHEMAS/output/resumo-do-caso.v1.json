@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "resumo-do-caso.v1.json",
+  "title": "Resumo do Caso",
+  "description": "Schema canônico das 7 seções de resumo de caso, com extensões por área (previdenciário, acidentário, trabalhista, família, tributário).",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["cliente", "area", "objeto", "situacao_atual", "proximo_passo"],
+  "properties": {
+    "cliente": {
+      "type": "object",
+      "required": ["nome"],
+      "properties": {
+        "nome": { "type": "string" },
+        "cpf": { "type": ["string", "null"] },
+        "processo": { "type": ["string", "null"] },
+        "orgao": { "type": ["string", "null"] }
+      }
+    },
+    "area": {
+      "type": "string",
+      "enum": ["previdenciario", "acidentario", "trabalhista", "familia", "tributario", "civel", "outro"]
+    },
+    "objeto": {
+      "type": "string",
+      "description": "Objeto do caso em uma frase: o que se pleiteia e com qual fundamento principal."
+    },
+    "fatos_essenciais": {
+      "type": "array",
+      "description": "Fatos determinantes para a tese — somente os que impactam diretamente o pedido.",
+      "items": { "type": "string" },
+      "maxItems": 7
+    },
+    "tese": {
+      "type": "string",
+      "description": "Síntese da tese jurídica: norma → fato → conclusão em 2–4 linhas."
+    },
+    "situacao_atual": {
+      "type": "object",
+      "required": ["fase", "descricao"],
+      "properties": {
+        "fase": {
+          "type": "string",
+          "enum": [
+            "pre_protocolo",
+            "aguardando_citacao",
+            "aguardando_contestacao",
+            "aguardando_pericia",
+            "aguardando_laudo",
+            "pos_laudo_prazo_aberto",
+            "aguardando_sentenca",
+            "pos_sentenca_prazo_recursal",
+            "em_recurso",
+            "cumprimento_sentenca",
+            "transitado_julgado",
+            "administrativo",
+            "outro"
+          ]
+        },
+        "descricao": { "type": "string" },
+        "prazo": {
+          "type": ["object", "null"],
+          "properties": {
+            "data": { "type": "string", "format": "date" },
+            "descricao": { "type": "string" },
+            "urgente": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "proximo_passo": {
+      "type": "object",
+      "required": ["acao", "responsavel"],
+      "properties": {
+        "acao": { "type": "string" },
+        "responsavel": { "type": "string", "enum": ["advogada", "cliente", "perito", "juizo", "inss", "outro"] },
+        "data_limite": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "riscos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["risco", "severidade"],
+        "properties": {
+          "risco": { "type": "string" },
+          "severidade": { "type": "string", "enum": ["baixo", "medio", "alto", "critico"] }
+        }
+      }
+    },
+    "extensoes": {
+      "type": ["object", "null"],
+      "description": "Campos adicionais específicos por área.",
+      "properties": {
+        "previdenciario": {
+          "type": ["object", "null"],
+          "properties": {
+            "nb": { "type": ["string", "null"] },
+            "especie_pleiteada": { "type": ["string", "null"] },
+            "did": { "type": ["string", "null"] },
+            "qualidade_segurado": { "type": ["boolean", "null"] }
+          }
+        },
+        "acidentario": {
+          "type": ["object", "null"],
+          "properties": {
+            "cat_emitida": { "type": ["boolean", "null"] },
+            "ntep_aplicavel": { "type": ["boolean", "null"] },
+            "beneficios_pleiteados": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "tributario": {
+          "type": ["object", "null"],
+          "properties": {
+            "cda": { "type": ["string", "null"] },
+            "valor_debito": { "type": ["number", "null"] },
+            "prescricao_verificada": { "type": ["boolean", "null"] }
+          }
+        }
+      }
+    }
+  }
+}

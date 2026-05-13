@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fatos-estruturados.v1.json",
+  "title": "Fatos Estruturados",
+  "description": "Contrato de output do levanta-fatos. Alimenta dossie-caso, pericia-acidentaria e skills C5.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["cliente", "documentos_presentes", "lacunas_documentais"],
+  "properties": {
+    "cliente": {
+      "type": "object",
+      "required": ["nome"],
+      "properties": {
+        "nome": { "type": "string" },
+        "cpf": { "type": ["string", "null"] },
+        "nit_pis": { "type": ["string", "null"] },
+        "data_nascimento": { "type": ["string", "null"], "format": "date" },
+        "data_obito": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "documentos_presentes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ctps", "cnis", "cat", "ppp", "laudo_medico", "exame_imagem", "processo_inss", "contestacao", "sentenca", "acordao", "procuracao", "outro"]
+      }
+    },
+    "lacunas_documentais": {
+      "type": "array",
+      "description": "Documentos que deveriam estar presentes mas não foram fornecidos.",
+      "items": {
+        "type": "object",
+        "required": ["documento", "impacto"],
+        "properties": {
+          "documento": { "type": "string" },
+          "impacto": { "type": "string", "description": "Consequência jurídica da ausência." }
+        }
+      }
+    },
+    "vinculos_empregaticos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["empregador"],
+        "properties": {
+          "empregador": { "type": "string" },
+          "cnpj": { "type": ["string", "null"] },
+          "cnae": { "type": ["string", "null"] },
+          "funcao": { "type": ["string", "null"] },
+          "data_admissao": { "type": ["string", "null"], "format": "date" },
+          "data_saida": { "type": ["string", "null"], "format": "date" },
+          "fonte": { "type": "string", "enum": ["ctps", "cnis", "ppp", "cat", "declaracao"] }
+        }
+      }
+    },
+    "beneficios_inss": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["nb", "especie"],
+        "properties": {
+          "nb": { "type": "string" },
+          "especie": { "type": "string" },
+          "did": { "type": ["string", "null"], "format": "date" },
+          "dii": { "type": ["string", "null"], "format": "date" },
+          "dib": { "type": ["string", "null"], "format": "date" },
+          "dcb": { "type": ["string", "null"], "format": "date" },
+          "rmi": { "type": ["number", "null"] },
+          "situacao": { "type": "string", "enum": ["ativo", "cessado", "suspenso", "indeferido"] }
+        }
+      }
+    },
+    "cids": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["codigo"],
+        "properties": {
+          "codigo": { "type": "string" },
+          "descricao": { "type": ["string", "null"] },
+          "fonte": { "type": "string" }
+        }
+      }
+    },
+    "ntep_aplicavel": {
+      "type": ["boolean", "null"],
+      "description": "true = par CNAE×CID consta da Lista A Decreto 3.048 Anexo II; false = não consta; null = dado insuficiente."
+    },
+    "inconsistencias": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["campo", "valor_doc1", "fonte_doc1", "valor_doc2", "fonte_doc2"],
+        "properties": {
+          "campo": { "type": "string" },
+          "valor_doc1": { "type": "string" },
+          "fonte_doc1": { "type": "string" },
+          "valor_doc2": { "type": "string" },
+          "fonte_doc2": { "type": "string" }
+        }
+      }
+    },
+    "observacoes": { "type": ["string", "null"] }
+  }
+}

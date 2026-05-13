@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "qualificacao-parte.v1.json",
+  "title": "Qualificação de Parte",
+  "description": "Estrutura canônica de qualificação de pessoa física e jurídica para peças processuais e dossiês.",
+  "version": "1.0.0",
+  "definitions": {
+    "pessoa_fisica": {
+      "type": "object",
+      "required": ["nome"],
+      "properties": {
+        "nome": { "type": "string" },
+        "cpf": { "type": ["string", "null"] },
+        "rg": { "type": ["string", "null"] },
+        "data_nascimento": { "type": ["string", "null"], "format": "date" },
+        "nacionalidade": { "type": ["string", "null"] },
+        "estado_civil": {
+          "type": ["string", "null"],
+          "enum": ["solteiro", "casado", "divorciado", "viuvo", "uniao_estavel", "separado", null]
+        },
+        "profissao": { "type": ["string", "null"] },
+        "endereco": {
+          "type": ["object", "null"],
+          "properties": {
+            "logradouro": { "type": "string" },
+            "numero": { "type": ["string", "null"] },
+            "complemento": { "type": ["string", "null"] },
+            "bairro": { "type": ["string", "null"] },
+            "cidade": { "type": "string" },
+            "uf": { "type": "string" },
+            "cep": { "type": ["string", "null"] },
+            "ponto_referencia": { "type": ["string", "null"] }
+          },
+          "required": ["logradouro", "cidade", "uf"]
+        },
+        "telefone": { "type": ["string", "null"] },
+        "email": { "type": ["string", "null"] },
+        "nit_pis": { "type": ["string", "null"] },
+        "polo": {
+          "type": ["string", "null"],
+          "enum": ["ativo", "passivo", "terceiro_interessado", "assistente", null]
+        }
+      }
+    },
+    "pessoa_juridica": {
+      "type": "object",
+      "required": ["razao_social"],
+      "properties": {
+        "razao_social": { "type": "string" },
+        "nome_fantasia": { "type": ["string", "null"] },
+        "cnpj": { "type": ["string", "null"] },
+        "cnae_principal": { "type": ["string", "null"] },
+        "endereco_sede": {
+          "type": ["object", "null"],
+          "properties": {
+            "logradouro": { "type": "string" },
+            "numero": { "type": ["string", "null"] },
+            "complemento": { "type": ["string", "null"] },
+            "bairro": { "type": ["string", "null"] },
+            "cidade": { "type": "string" },
+            "uf": { "type": "string" },
+            "cep": { "type": ["string", "null"] }
+          },
+          "required": ["logradouro", "cidade", "uf"]
+        },
+        "representante_legal": {
+          "type": ["object", "null"],
+          "properties": {
+            "nome": { "type": "string" },
+            "cargo": { "type": ["string", "null"] },
+            "cpf": { "type": ["string", "null"] }
+          }
+        },
+        "polo": {
+          "type": ["string", "null"],
+          "enum": ["ativo", "passivo", "terceiro_interessado", "assistente", null]
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "pessoa_fisica": { "$ref": "#/definitions/pessoa_fisica" },
+    "pessoa_juridica": { "$ref": "#/definitions/pessoa_juridica" }
+  }
+}

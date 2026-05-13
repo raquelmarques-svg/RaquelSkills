@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dossie-caso.v1.json",
+  "title": "Dossiê do Caso",
+  "description": "Contrato de output do dossie-caso. Organiza fatos em 5 dimensões, linha do tempo e mapa de provas.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["cliente", "dimensoes", "linha_do_tempo"],
+  "properties": {
+    "cliente": {
+      "$ref": "qualificacao-parte.v1.json#/definitions/pessoa_fisica"
+    },
+    "dimensoes": {
+      "type": "object",
+      "description": "5 dimensões de fatos do caso.",
+      "properties": {
+        "naturais": {
+          "type": "array",
+          "description": "Fatos da natureza: ambiente de trabalho, condições físicas, agentes nocivos.",
+          "items": { "type": "string" }
+        },
+        "humanos": {
+          "type": "array",
+          "description": "Fatos de conduta: decisões do empregador, do INSS, do advogado anterior.",
+          "items": { "type": "string" }
+        },
+        "clinicos": {
+          "type": "array",
+          "description": "Fatos médicos: diagnósticos, evolução clínica, tratamentos, capacidade laborativa.",
+          "items": { "type": "string" }
+        },
+        "previdenciarios": {
+          "type": "array",
+          "description": "Fatos previdenciários: qualidade de segurado, benefícios, perícias administrativas.",
+          "items": { "type": "string" }
+        },
+        "juridicos": {
+          "type": "array",
+          "description": "Fatos processuais: ações anteriores, sentenças, recursos, acordos.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "linha_do_tempo": {
+      "type": "array",
+      "description": "Eventos em ordem cronológica com data, descrição e fonte probatória.",
+      "items": {
+        "type": "object",
+        "required": ["data", "evento"],
+        "properties": {
+          "data": { "type": "string" },
+          "evento": { "type": "string" },
+          "dimensao": {
+            "type": "string",
+            "enum": ["natural", "humano", "clinico", "previdenciario", "juridico"]
+          },
+          "fonte": { "type": ["string", "null"] },
+          "valor_estrategico": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "questoes_de_fato": {
+      "type": "array",
+      "description": "Controvérsias factuais — o que precisa ser provado.",
+      "items": { "type": "string" }
+    },
+    "questoes_de_direito": {
+      "type": "array",
+      "description": "Controvérsias jurídicas — o que precisa ser argumentado.",
+      "items": { "type": "string" }
+    },
+    "mapa_de_provas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["documento", "conteudo_objetivo", "valor_estrategico"],
+        "properties": {
+          "documento": { "type": "string" },
+          "conteudo_objetivo": { "type": "string" },
+          "valor_estrategico": { "type": "string" },
+          "riscos": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "tese_principal": { "type": ["string", "null"] },
+    "teses_subsidiarias": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "riscos": {
+      "type": "array",
+      "description": "Riscos processuais e probatórios identificados.",
+      "items": {
+        "type": "object",
+        "required": ["risco", "severidade"],
+        "properties": {
+          "risco": { "type": "string" },
+          "severidade": { "type": "string", "enum": ["baixo", "medio", "alto", "critico"] },
+          "mitigacao": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "observacoes": { "type": ["string", "null"] }
+  }
+}
