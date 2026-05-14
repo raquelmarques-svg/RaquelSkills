@@ -59,3 +59,69 @@ skill-creator-am em produção estava em v1.6.0; pacote uploaded era v1.4.0 — 
 ## L13 · mai/2026 · gotcha-skill
 gotcha-skill falhou silenciosamente desde instalação — instruía appender em licoes-aprendidas.md que não existia.
 **Regra:** ao instalar skill que declara depends_on com path em _compartilhados/, criar o arquivo referenciado antes ou imediatamente após a instalação.
+
+---
+
+## L22 — Sempre usar zipfile direto sobre template_mod4.docx — nunca depender de gerar_mod4.py
+
+| Campo | Valor |
+|---|---|
+| skill_afetada | mod4 |
+| categoria | dependência |
+| descoberto_via | produção |
+| data | 2026-05-14 |
+| auditoria_ref | — |
+
+**Comportamento inesperado:** O pipeline §3 do mod4 v4.2.0 referenciava `SCRIPTS/gerar_mod4.py` como método primário. O script intermediário introduz risco de perda do cabeçalho VML, das imagens e dos estilos calibrados do template.
+
+**Causa raiz:** O script é uma camada desnecessária entre o JSON de input e o template DOCX. O zipfile direto acessa o template sem intermediário e preserva 100% dos elementos gráficos.
+
+**Correção aplicada:** Zipfile direto sobre `ASSETS/template_mod4.docx` é o método padrão permanente a partir da v4.3.0. O resultado visual é superior ao gerado pelo script — cabeçalho VML, assinatura cursiva, paleta e tipografia intactos. Comprovou-se no redesprotocolamento do caso Beatriz Rodrigues (14/05/2026).
+
+**Regra derivada:** Sempre manipular `word/document.xml` via `zipfile.ZipFile` diretamente sobre o template. Nunca usar `gerar_mod4.py` como intermediário — o script está descontinuado. Copiar o template para `/tmp/`, extrair todos os arquivos como dict, substituir apenas `word/document.xml`, remontar o ZIP.
+
+**Remissões:** L1, L8 | LD5 | SCRIPTS/gerar_mod4_zipfile.py
+
+---
+
+## L23 — Usar placeholders intermediários em substituições XML em cascata
+
+| Campo | Valor |
+|---|---|
+| skill_afetada | mod4 (geral — qualquer manipulação de document.xml) |
+| categoria | output |
+| descoberto_via | produção |
+| data | 2026-05-14 |
+| auditoria_ref | — |
+
+**Comportamento inesperado:** Substituição sequencial de strings que formam cadeia (A→B, B→C, C→D) em documento XML produz dupla substituição: o texto recém-criado "B" é imediatamente reprocessado para "C" na etapa seguinte.
+
+**Causa raiz:** `str.replace()` não distingue a origem da ocorrência; qualquer instância do padrão — inclusive as criadas na mesma execução — é afetada.
+
+**Correção aplicada:** Placeholders únicos e não-colisionáveis (`>__MESA__<`, `>__MESB__<`, `>__DATA_A__<`) resolvem todas as substituições em bloco; os valores finais são restaurados em segunda passagem.
+
+**Regra derivada:** Sempre que três ou mais substituições de texto XML formarem cadeia (valor de destino de uma é origem da próxima), usar placeholders intermediários na primeira passagem e resolver na segunda. Placeholders devem conter caracteres que não aparecem em XML válido (ex.: `>__TOKEN__<`).
+
+**Remissões:** L9 | LD6 | references/05-licoes-mod4.md §LD6
+
+---
+
+## L24 — Substituir texto em `<w:t>` via padrão `>texto<`, nunca pela tag completa
+
+| Campo | Valor |
+|---|---|
+| skill_afetada | mod4 (geral — qualquer manipulação de document.xml) |
+| categoria | output |
+| descoberto_via | produção |
+| data | 2026-05-14 |
+| auditoria_ref | — |
+
+**Comportamento inesperado:** Substituição por `<w:t>texto</w:t>` falha silenciosamente quando a tag tem o atributo `xml:space="preserve"`, forma gerada pelo Word para textos com espaços iniciais ou finais.
+
+**Causa raiz:** O Word gera duas formas do elemento: `<w:t>X</w:t>` e `<w:t xml:space="preserve">X</w:t>`. A busca pela tag completa sem atributo não casa com a segunda forma.
+
+**Correção aplicada:** Usar `>X<` como padrão de busca casa com ambas as formas independentemente de atributos intermediários.
+
+**Regra derivada:** Em qualquer substituição de conteúdo textual em `document.xml`, usar sempre `>texto_alvo<` como padrão de busca, nunca a tag completa `<w:t>texto_alvo</w:t>`. A forma curta é mais robusta e não produz misses silenciosos.
+
+**Remissões:** L9, LD1 | LD7 | references/05-licoes-mod4.md §LD7
