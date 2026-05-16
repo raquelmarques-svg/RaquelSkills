@@ -1,4 +1,4 @@
----
+﻿---
 name: pericia-previdenciaria
 description: "Perícia médica previdenciária — ciclo completo: quesitação, análise de laudo, vícios processuais, impugnação, art. 151, período de graça, BPC/LOAS, manifestação nos 5 dias, estratégia retórica."
 project: Proj02
@@ -200,6 +200,18 @@ Introduzido pela Lei 14.331/2022. Ausência total é vício insanável por escla
 somente nova perícia resolve.
 
 ---
+
+### eSocial SST — exibição judicial e valor probatório
+
+- **S-2210 (CAT eletrônica):** data, CID-10 e agente causador. Obrigatório Grupo 1 desde out/2021.
+- **S-2220 (Monitoramento da Saúde/ASO):** cada exame médico vinculado ao empregador por data.
+- **S-2240 (Condições Ambientais):** declaração patronal de fatores de risco por função e período.
+  Corrobora o NTEP: exposição declarada pela empresa reforça a presunção do art. 21-A Lei 8.213/91.
+
+**PPP eletrônico:** do S-2240, obrigatório desde jan/2023. Substitui LTCAT (art. 57 Lei 8.213/91).
+**Limite temporal:** dados confiáveis a partir de out/2021 (Grupo 1) e 2022 (Grupo 2).
+**Acesso:** gov.br → CTPS Digital → "Segurança e Saúde".
+**Exibição judicial:** art. 400 CPC — recusa gera presunção de veracidade (art. 400, par. único).
 
 ## §8 — Pragmática processual
 

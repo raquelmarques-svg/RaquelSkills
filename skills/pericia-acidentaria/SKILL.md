@@ -1,4 +1,4 @@
----
+﻿---
 name: pericia-acidentaria
 description: |
   Produz e avalia documentação de perícia médica em ações acidentárias brasileiras: nexo técnico epidemiológico (NTEP), impugnação de laudo, nova perícia (art. 480 CPC), quesitos complementares, análise de concausa, controle de qualidade pericial, benefícios B91/B94/B92. Acionar quando a usuária mencionar: laudo pericial (acidentário), impugnação de laudo, quesitos, nova perícia, art. 480 CPC, anamnese ocupacional, NTEP, CNAE x CID, concausa, capacidade laborativa, laudo sem anamnese, laudo que não afasta o nexo, contradição no laudo, perito não respondeu quesitos, B91, B94, B92.
@@ -184,6 +184,30 @@ benefício, conversão de espécie, cálculo de RMI, B94, B92 ou reflexos trabal
 
 ---
 
+## §eSocial — eSocial SST como instrumento probatório
+
+**S-2210 — CAT eletrônica:** obrigatório Grupo 1 desde outubro de 2021. Confrontar com CAT em
+papel: datas, CID-10 e agente causador. Divergência é argumento para quesito complementar.
+
+**S-2220 — Monitoramento da Saúde do Trabalhador:** registra cada ASO. Comprova exposição ao
+agente de risco na data dos exames (NR-7, item 7.7). Ausência do evento em período de risco
+documentado configura omissão patronal independente.
+
+**S-2240 — Condições Ambientais do Trabalho:** declara, por função e período, os fatores de
+risco. Desde jan/2023 é a base do PPP eletrônico. Se registra exposição ao agente do NTEP,
+a presunção do art. 21-A é reforçada por declaração da própria empresa.
+
+**PPP eletrônico:** gerado do S-2240, obrigatório desde jan/2023. Substitui LTCAT (art. 57
+Lei 8.213/91). Para períodos anteriores a out/2021: exigir LTCAT, PPRA/PGR e PCMSO em papel.
+
+**Acesso:** gov.br → CTPS Digital → "Segurança e Saúde".
+**Exibição judicial (art. 400 CPC):** recusa gera presunção de veracidade (art. 400 par. único).
+
+**Quesito padrão quando S-2240 confirmar exposição ao agente do NTEP:**
+"O Sr. Perito teve acesso aos eventos S-2240 e S-2220 do reclamante no eSocial? As exposições
+declaradas pela empresa são compatíveis com o NTEP estabelecido para o CNAE e CID em questão?"
+
+---
 ## §10 — Controle de qualidade pré-entrega
 
 1. Argumento estruturado como NORMA → FATO → CONCLUSÃO?
