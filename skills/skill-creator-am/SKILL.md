@@ -29,11 +29,11 @@ recursos_compartilhados:
   templates:
     - template-skill-canonico
 licoes_aplicadas:
-  - L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, LM1, LM2
+  - L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, LM1, LM2
 regras_aplicaveis:
   - R1, R2, R3, R6, R9, R10, R11
-verificado_em: 2026-05-12
-version: 1.6.0
+verificado_em: 2026-05-18
+version: 1.7.0
 git_repo: C:\RaquelSkills
 git_auto_commit: false
 
@@ -55,6 +55,17 @@ Quando o input pede criar skill nova, eu pergunto seis coisas antes de qualquer 
 6. Três gatilhos linguísticos típicos e dois cenários onde NÃO deve disparar
 
 Sem essas seis informações, não procedo. Não invento dados.
+
+### Fase -1 — Pesquisa de domínio (gate para skills C5/capability jurídicas)
+
+Aplicável quando `frente = C5` ou domínio exige normas, jurisprudência e zonas cinzentas para definição precisa do escopo.
+
+Antes das 6 perguntas, verifico se o criador consegue responder com precisão:
+- (a) Qual norma primária rege o objeto da skill? (lei, artigo, inciso)
+- (b) Qual jurisprudência vinculante se aplica? (Súmula, Tema, OJ)
+- (c) Quais são as zonas cinzentas reconhecidas?
+
+Se não respondível com precisão → pesquisa de domínio obrigatória antes do §0. Sem ela, os campos ASSETS/, MODELOS/ e examples/ ficam preenchidos com suposições que passam em A1-A21 mas produzem skill funcionalmente deficiente. (L22)
 
 Quando o input pede editar skill existente, eu primeiro:
 - Localizo o SKILL.md
@@ -164,21 +175,27 @@ Detalhamento operacional de cada modo em `references/09-modos-operacionais.md`.
 Fluxo padrão de criação de skill nova:
 
 ```
-1.  Receber input → invocar §0-Ativação (6 perguntas)
-2.  Aguardar respostas completas
-3.  Rodar 9 verificações pré-criação (bloqueantes) — V8 e V9 são as mais críticas
-4.  Se aprovado, gerar SKILL.md a partir do template canônico
-5.  Inserir cláusulas R1-R11 conforme tipo (referência 03)
-6.  Gerar references/ — módulos de referência (ver §4-A)
-7.  Gerar MODELOS/ — templates de output completos (ver §4-B)
-8.  Gerar ASSETS/ — dados, normas, checklists, cálculos (ver §4-C)
-9.  Gerar SCHEMAS/ — schemas JSON de input quando aplicável (ver §4-D)
-10. Gerar scripts/ — Python quando pipeline exige execução (ver §4-E)
-11. Gerar examples/ — 3 positivos + 2 negativos (ver §4-F)
-12. Rodar auditorias A1–A21 (bloqueantes)
-13. Empacotar em .skill (R1: perguntar antes)
-14. Registrar em log de auditoria
-15. Executar §4-G — pipeline pós-criação (Git sync)
+1.  Receber input → invocar §0-Fase -1 (pesquisa de domínio se C5/capability)
+2.  Invocar §0-Ativação (6 perguntas)
+3.  Aguardar respostas completas
+3.5 Planejar pastas como gate de viabilidade (L23, L24)
+    — Listar: arquivos ASSETS/, MODELOS/, campos schema antes de gerar SKILL.md
+    — Se volume > 4 ASSETS + 3 MODELOS + 12 campos schema → reavaliar split via V8
+    — Resultado pode alterar 4 dimensões, chains_to e depends_on
+    — Decisões de omissão → documentar em §14 > decisoes_omitidas
+4.  Rodar 9 verificações pré-criação (bloqueantes) — V8 e V9 são as mais críticas
+5.  Se aprovado, gerar SKILL.md a partir do template canônico
+6.  Inserir cláusulas R1-R11 conforme tipo (referência 03)
+7.  Gerar references/ — módulos de referência (ver §4-A)
+8.  Gerar MODELOS/ — templates de output completos (ver §4-B)
+9.  Gerar ASSETS/ — dados, normas, checklists, cálculos (ver §4-C)
+10. Gerar SCHEMAS/ — schemas JSON de input quando aplicável (ver §4-D)
+11. Gerar scripts/ — Python quando pipeline exige execução (ver §4-E)
+12. Gerar examples/ — 3 positivos + 2 negativos (ver §4-F)
+13. Rodar auditorias A1–A21 (bloqueantes)
+14. Empacotar em .skill (R1: perguntar antes)
+15. Registrar em log de auditoria
+16. Executar §4-G — pipeline pós-criação (Git sync)
 ```
 
 Detalhe das 9 verificações em `references/01-verificacoes-pre-criacao.md`. V8 (análise semântico-funcional-pragmática) e V9 (blueprint arquitetural SOLID+DDD+ITIL/COBIT) aplicam-se a **todo modo operacional**, não apenas ao Create.
@@ -190,11 +207,11 @@ Módulos de referência que o SKILL.md indexa em vez de duplicar. ≤ 200 linhas
 
 ### §4-B — MODELOS/ (obrigatório quando skill produz texto jurídico)
 
-Templates completos de output com ≥ 70% do conteúdo pronto. Placeholders em `[colchetes]`. Cada modelo: instrução de uso + texto completo + variantes relevantes. Proibido: modelo vazio, modelo com apenas cabeçalho, placeholder > 30%. Ver detalhes em `references/03-artefatos-obrigatorios.md`.
+Templates completos de output com ≥ 70% do conteúdo pronto. Placeholders em `[colchetes]`. Cada modelo: instrução de uso + texto completo + variantes relevantes. Proibido: modelo vazio, modelo com apenas cabeçalho, placeholder > 30%. Quando skill produz documentos para múltiplos regimes normativos com workflow análogo, usar variantes de MODELOS/ em vez de criar skill separada; se workflow diverge estruturalmente, aplicar V8 para decidir split. (L26) Ver detalhes em `references/03-artefatos-obrigatorios.md`.
 
 ### §4-C — ASSETS/ (obrigatório quando skill usa dados, normas ou cálculos)
 
-Dados autossuficientes consumidos pela skill. Categorias: normas indexadas, fórmulas com exemplos numéricos, checklists por fase, tabelas de referência, retórica e vocabulário. Cada arquivo legível sem dependência dos demais. Ver detalhes em `references/03-artefatos-obrigatorios.md`.
+Dados autossuficientes consumidos pela skill. Categorias: normas indexadas, fórmulas com exemplos numéricos, checklists por fase, tabelas de referência, retórica e vocabulário. Cada arquivo legível sem dependência dos demais. Para skills com zonas cinzentas de cabimento reconhecidas, criar ASSET dedicado com tabela decisória (vício, sintoma, zona cinzenta, critério de resolução) — não substituível apenas por examples negativos. (L25) Ver detalhes em `references/03-artefatos-obrigatorios.md`.
 
 ### §4-D — SCHEMAS/ (obrigatório quando skill recebe input estruturado)
 
@@ -242,6 +259,8 @@ git push
 ## §4-I — Blueprint arquitetural obrigatório (V9)
 
 Preencher cartão CRC antes de qualquer SKILL.md (ver reference 12): Nome / Responsabilidade (1 frase) / Upstream+schema / Downstream+schema / Não-responsabilidade / SLA. Se "Responsabilidade" tiver "e" → split.
+
+Dimensão V8 adicional — regime normativo: se workflow é análogo e só normas diferem → unificar com variantes MODELOS/; se workflow diverge estruturalmente → split obrigatório. Decisão intuitiva antes de L26; agora codificada como regra. (L26)
 
 Ler obrigatoriamente antes de Create ou Refactor:
 `references/12-principios-design.md` · `references/13-itil-cobit.md` · `references/14-contratos-interface.md`
@@ -451,9 +470,18 @@ VERIFICAR VIGÊNCIA: R1-R11 conforme memória atualizada da Raquel
 VERIFICAR EXISTÊNCIA: skill proposta versus biblioteca atual em `C:\RaquelSkills\skills\`
 DADO NECESSÁRIO: nome, propósito, 4 coordenadas, casos-teste mínimos
 
+### decisoes_omitidas
+
+Documentar todo artefato deliberadamente omitido ao criar ou editar skill:
+`[artefato]: [razão da omissão] → [condição para inclusão na próxima versão]`
+
+Exemplo: `scripts/: R11 economia v1.0 → incluir em v1.1 se demanda real de cálculo aparecer`
+
+Omissão não documentada é indistinguível de esquecimento para auditoria R9 e para mantenedor futuro. (L24)
+
 ## §15 — Auto-verificação
 
-Verificação: 2026-05-12 · Próxima: 2026-06-12
+Verificação: 2026-05-18 · Próxima: 2026-08-18
 
 Checklist:
 - [x] Frontmatter completo (4 coordenadas + categoria + version + verificado_em)
@@ -465,36 +493,30 @@ Checklist:
 - [x] 5 casos-teste presentes (3 positivos + 2 negativos)
 - [x] §4-A a §4-G presentes no pipeline Create
 - [x] §12 com estrutura completa de pastas e regras de qualidade
-- [x] Tamanho dentro do limite (≤ 500 linhas)
-- [x] L19–L21 e A17–A21 incorporadas (§16 + references/02)
+- [ ] Tamanho dentro do limite (≤ 500 linhas) ← AMARELO: refatorar §16 para references/06-licoes.md na v1.8.0
+- [x] L19–L27 e A17–A21 incorporadas (§16 + references/02)
 
 ## §16 — Lições incorporadas
 
 L1 — Bugs de path só aparecem em ambiente real. Aplico: caminhos relativos + `resolver_output_root.py`.
-
 L2 — Skill que mistura escopo, infla. Aplico: §1 com FAÇO/NÃO FAÇO/DELEGO PARA explícito.
-
 L3 — Regras "fortes" são universais, não condicionais. Aplico: R1-R11 inseridas conforme tipo, sem condicionais frágeis.
-
 L4 — Pergunta a cada turno > marcador textual. Aplico: §0 com 6 perguntas antes de criar.
-
 L5 — Andaime invisível. Aplico: nada de método interno na superfície do output.
-
 L6 — Versão instalada ≠ entregue. Aplico: empacotamento sempre via `.skill` zipado.
-
 L7 — Encadeamento condicional sob comando. Aplico: chains_to declarado, execução pergunta.
-
 L8 — Skill ambiente-consciente. Aplico: `resolver_output_root.py` em todas as operações de I/O.
-
 L9 — Python 3 é nativamente UTF-8. Aplico: nunca omitir acentos em strings. Scripts com `# -*- coding: utf-8 -*-` e `encoding='utf-8'` explícito. Verificação visual pós-geração obrigatória.
-
-L10 — Skill sem artefatos é esqueleto. Aplico: MODELOS/, ASSETS/, SCHEMAS/ são obrigatórios quando a skill produz texto jurídico, usa dados normativos ou recebe input estruturado. Pasta vazia ou modelo incompleto (< 70% conteúdo pronto) é falha bloqueante na auditoria pós-criação.
-
-L11 — Git sync é parte do pipeline, não etapa manual. Aplico: §4-G com bloco PowerShell canônico executado imediatamente após empacotamento. Mensagem de commit padronizada. Skill não está "entregue" sem commit + push confirmados.
-
-LM1 e LM2 — Lições mod4-específicas (zipfile sobre template; letterhead VML). Documentadas em `references/05-licoes-mod4.md`. Aplicam-se apenas à mod4 e skills com DOCX corporativo.
+L10 — Skill sem artefatos é esqueleto. Aplico: MODELOS/, ASSETS/, SCHEMAS/ obrigatórios quando aplicável. Pasta vazia ou modelo incompleto (< 70%) é falha bloqueante.
+L11 — Git sync é parte do pipeline, não etapa manual. Aplico: §4-G com bloco PowerShell. Skill não está "entregue" sem commit + push confirmados.
+LM1 e LM2 — Lições mod4-específicas (zipfile sobre template; letterhead VML). Documentadas em `references/05-licoes-mod4.md`.
 L12 — Escopo misto é o erro mais caro. Aplico: V8 em todo modo operacional.
-L13 — Sem contrato, não há serviço. Aplico: schema de input e output obrigatórios (A16). Pipeline sem contratos explícitos depende de contexto implícito — frágil e irrastreável.
-L14-L18 — Lições de operação e ambiente. Ver `references/05-licoes-mod4.md` para detalhe completo. Resumo: verificar versão antes de instalar (L14); caminhos configuráveis, instalação bloqueante (L15); inventário antes de qualquer diagnóstico (L16); scripts PS5-compatíveis (L17); web para design, Cowork para execução (L18). Aplico: V8 em todo modo operacional, sem exceção. Skill com funções em camadas distintas não falha no momento da criação — falha silenciosamente em produção, ativando quando não deveria e gerando output inconsistente. O custo de split tardio é 5× maior que o de split na criação.
-
-L19-L21 — Constrições de integridade estrutural. Ver `references/02-auditorias-pos-criacao.md` (A17–A19) para detalhe completo. Resumo: `git_auto_commit: false` por padrão — `true` só após push confirmado (L19, A17); `chains_to` requer skill instalada + schema — promessa sem contrato bloqueia criação (L20, A18); artefatos de referência (`_compartilhados/informacoes/`) não são skills invocáveis — `padrao-redacional` é o caso canônico de violação corrigida (L21, A19).
+L13 — Sem contrato, não há serviço. Aplico: schema de input e output obrigatórios (A16).
+L14-L18 — Lições de operação e ambiente. Ver `references/05-licoes-mod4.md`. Resumo: verificar versão antes de instalar (L14); caminhos configuráveis (L15); inventário antes de diagnóstico (L16); scripts PS5-compatíveis (L17); web para design, Cowork para execução (L18).
+L19-L21 — Constrições de integridade estrutural. Ver `references/02-auditorias-pos-criacao.md`. Resumo: `git_auto_commit: false` por padrão (L19, A17); `chains_to` requer skill instalada + schema (L20, A18); artefatos de referência não são skills invocáveis (L21, A19).
+L22 — Pesquisa de domínio é gate, não premissa informal. Aplico: Fase -1 obrigatória para skills C5/capability jurídicas. Sem mapear norma + jurisprudência + zonas cinzentas, os 6 campos do §0 ficam com suposições que passam em A1-A21 mas produzem skill funcionalmente deficiente.
+L23 — Planejamento de ASSETS/MODELOS/SCHEMAS antes do SKILL.md revela complexidade oculta. Aplico: passo 3.5 no pipeline Create como gate de viabilidade. Pode alterar 4 dimensões, chains_to e depends_on.
+L24 — Decisão de omitir artefato deve ser documentada. Aplico: §14 > decisoes_omitidas com formato `[artefato]: [razão] → [condição]`. Omissão implícita é indistinguível de esquecimento.
+L25 — Zonas cinzentas de cabimento merecem ASSET dedicado com tabela decisória. Aplico: além de examples/ negativos, criar ASSET com vício, sintoma, zona cinzenta e critério de resolução.
+L26 — Múltiplos regimes normativos com workflow análogo: critério V8 explícito. Aplico: workflow análogo + normas diferentes → variantes MODELOS/; workflow divergente → split V8.
+L27 — Processo de criação tem 3 fases, não 2. Aplico: Fase -1 (pesquisa) + pré-criação + pós-criação. A1-A21 verifica forma, não profundidade — MODELOS/ com cabeçalhos vazios passa no formato mas falha funcionalmente.
